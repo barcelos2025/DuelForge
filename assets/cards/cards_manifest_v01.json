@@ -1,0 +1,110 @@
+{
+  "versao": "v0.1",
+  "cards": [
+    {
+      "id": "tyr",
+      "asset": "assets/cards/df_card_tyr_v01.jpg",
+      "origem": "Deus Tyr.jpeg"
+    },
+    {
+      "id": "skald_bard",
+      "asset": "assets/cards/df_card_skald_bard_v01.jpg",
+      "origem": "Whisk_49610a9279f0f5887d845f23bf23c63edr.jpeg"
+    },
+    {
+      "id": "ice_runner",
+      "asset": "assets/cards/df_card_ice_runner_v01.jpg",
+      "origem": "Whisk_702b8c7d683115ea09840bcbdd489005dr.jpeg"
+    },
+    {
+      "id": "bear_berserker",
+      "asset": "assets/cards/df_card_bear_berserker_v01.jpg",
+      "origem": "Whisk_a1f2433de2bb4f097284f8b3e4a73e7bdr.jpeg"
+    },
+    {
+      "id": "frost_ranger",
+      "asset": "assets/cards/df_card_frost_ranger_v01.jpg",
+      "origem": "Whisk_a72890e5fc1ff9787e94a5d939e9d11edr.jpeg"
+    },
+    {
+      "id": "palisade_wall",
+      "asset": "assets/cards/df_card_palisade_wall_v01.jpg",
+      "origem": "Whisk_cc0de74af676394bad547910f2ceffd6dr.jpeg"
+    },
+    {
+      "id": "odyn_ravens",
+      "asset": "assets/cards/df_card_odyn_ravens_v01.jpg",
+      "origem": "Whisk_dfad7963d94df48a53b409931f04f687dr.jpeg"
+    },
+    {
+      "id": "shield_warrior",
+      "asset": "assets/cards/df_card_shield_warrior_v01.jpg",
+      "origem": "Whisk_f0447c6418e54678e15452035b22d11ddr.jpeg"
+    },
+    {
+      "id": "axe_commander",
+      "asset": "assets/cards/df_card_axe_commander_v01.jpg",
+      "origem": "Whisk_f0bbec8e287d5b2839a49a6e28d26126dr.jpeg"
+    },
+    {
+      "id": "runic_spear_rain",
+      "asset": "assets/cards/df_card_runic_spear_rain_v01.jpg",
+      "origem": "Whisk_fbb0ddbb95e2624882f4379e0bd95b49dr.jpeg"
+    },
+    {
+      "id": "whale_hunter",
+      "asset": "assets/cards/df_card_whale_hunter_v01.jpg",
+      "origem": "caçador de baleia.jpeg"
+    },
+    {
+      "id": "troll_huntress",
+      "asset": "assets/cards/df_card_troll_huntress_v01.jpg",
+      "origem": "caçadora de trols.jpeg"
+    },
+    {
+      "id": "frost_gate",
+      "asset": "assets/cards/df_card_frost_gate_v01.jpg",
+      "origem": "feitiço de congelamento.jpeg"
+    },
+    {
+      "id": "thunder_hammer",
+      "asset": "assets/cards/df_card_thunder_hammer_v01.jpg",
+      "origem": "feitiço de área.jpeg"
+    },
+    {
+      "id": "loki_trickery",
+      "asset": "assets/cards/df_card_loki_trickery_v01.jpg",
+      "origem": "feitiço loki.jpeg"
+    },
+    {
+      "id": "freyja",
+      "asset": "assets/cards/df_card_freyja_v01.jpg",
+      "origem": "freyja2.jpeg"
+    },
+    {
+      "id": "brynhild",
+      "asset": "assets/cards/df_card_brynhild_v01.jpg",
+      "origem": "guerreira brynhild.jpeg"
+    },
+    {
+      "id": "ulf_legendary",
+      "asset": "assets/cards/df_card_ulf_legendary_v01.jpg",
+      "origem": "guerreiro ulf lendário.jpeg"
+    },
+    {
+      "id": "odyn_master",
+      "asset": "assets/cards/df_card_odyn_master_v01.jpg",
+      "origem": "odyn.jpeg"
+    },
+    {
+      "id": "thor",
+      "asset": "assets/cards/df_card_thor_v01.jpg",
+      "origem": "thor.jpeg"
+    },
+    {
+      "id": "watchtower",
+      "asset": "assets/cards/df_card_watchtower_v01.jpg",
+      "origem": "torre de vigia.jpeg"
+    }
+  ]
+}

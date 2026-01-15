@@ -1,0 +1,44 @@
+
+name: duelforge_proto
+description: Protótipo v0.1 do DuelForge (Flutter + Flame) - modular e pronto para escalar.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: ^1.18.0
+  flame_audio: ^2.10.0
+  provider: ^6.1.2
+  collection: ^1.18.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/arenas/
+    - assets/cards/
+    - assets/cards/cards_v0_1.json
+    - assets/ui/
+    - assets/ui/items/
+    - assets/ui/potions/
+    - assets/ui/chests/
+    - assets/ui/chests/anim/
+    - assets/ui/icons/
+    - assets/ui/buttons/
+    - assets/ui/badges/
+    - assets/ui/vfx/
+    - assets/ui/9slice/
+    - assets/ui/bars/
+    - assets/ui/atlas/
