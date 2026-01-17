@@ -21,6 +21,7 @@ import '../models/carta.dart';
 import '../models/estado_batalha.dart';
 import '../screens/match_summary_screen.dart';
 import 'cards_repository.dart';
+import '../domain/models/arena_definition.dart';
 
 class BattleViewModel extends ChangeNotifier {
   final CardsRepository repositorio;
@@ -38,6 +39,10 @@ class BattleViewModel extends ChangeNotifier {
   // UI State Wrappers
   Carta? cartaSelecionada;
   int tempoRestante = 180;
+  
+  // Arena Logic
+  int _playerTrophies = 0; // Should come from ProfileService
+  ArenaDefinition get currentArena => ArenaCatalog.getArenaForTrophies(_playerTrophies);
   
   // Backward Compatibility for UI
   late EstadoBatalha estado; 

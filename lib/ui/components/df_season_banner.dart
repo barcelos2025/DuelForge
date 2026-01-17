@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../ui/theme/df_theme.dart';
+import '../../ui/theme/duel_colors.dart';
+import '../../ui/theme/duel_typography.dart';
+import '../../ui/theme/duel_ui_tokens.dart';
 
 class DFSeasonBanner extends StatelessWidget {
   final String title;
@@ -26,7 +28,7 @@ class DFSeasonBanner extends StatelessWidget {
           image: AssetImage(imageAsset),
           fit: BoxFit.cover,
         ),
-        boxShadow: DFTheme.shadowDepth,
+        boxShadow: DuelUiTokens.shadowMedium,
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -48,32 +50,32 @@ class DFSeasonBanner extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: DFTheme.purple,
-                borderRadius: BorderRadius.circular(8),
+                color: DuelColors.secondary,
+                borderRadius: BorderRadius.circular(DuelUiTokens.radiusSmall),
               ),
               child: Text(
                 'TEMPORADA 1',
-                style: DFTheme.labelBold.copyWith(fontSize: 10),
+                style: DuelTypography.labelCaps.copyWith(color: Colors.white),
               ),
             ),
             const SizedBox(height: 8),
             Text(
               title.toUpperCase(),
-              style: DFTheme.titleLarge.copyWith(fontSize: 22),
+              style: DuelTypography.displayMedium,
             ),
             const SizedBox(height: 4),
             Text(
               description,
-              style: DFTheme.bodyText.copyWith(color: Colors.white70),
+              style: DuelTypography.bodyMedium.copyWith(color: Colors.white70),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(Icons.timer, color: DFTheme.cyan, size: 14),
+                const Icon(Icons.timer, color: DuelColors.primary, size: 14),
                 const SizedBox(width: 4),
                 Text(
                   'Termina em ${_formatDuration(timeRemaining)}',
-                  style: DFTheme.labelBold.copyWith(color: DFTheme.cyan),
+                  style: DuelTypography.labelCaps.copyWith(color: DuelColors.primary),
                 ),
               ],
             ),

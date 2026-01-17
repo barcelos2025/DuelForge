@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import '../theme/df_theme.dart';
+import '../theme/duel_colors.dart';
+import '../theme/duel_typography.dart';
+import '../theme/duel_ui_tokens.dart';
 
 class DFBottomDock extends StatelessWidget {
   final int currentIndex;
@@ -21,17 +23,11 @@ class DFBottomDock extends StatelessWidget {
           height: 80 + MediaQuery.of(context).padding.bottom / 2,
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom / 2),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F1926).withOpacity( 0.85),
+            color: DuelColors.surface.withOpacity(0.85),
             border: Border(
-              top: BorderSide(color: Colors.white.withOpacity( 0.1), width: 1),
+              top: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity( 0.5),
-                offset: const Offset(0, -4),
-                blurRadius: 10,
-              ),
-            ],
+            boxShadow: DuelUiTokens.shadowHigh,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -89,7 +85,7 @@ class _DockItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? DFTheme.gold : Colors.white38;
+    final color = isSelected ? DuelColors.accentGold : DuelColors.textDisabled;
     
     return GestureDetector(
       onTap: () => onTap(index),
@@ -104,12 +100,12 @@ class _DockItem extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isSelected ? DFTheme.gold.withOpacity( 0.15) : Colors.transparent,
+                color: isSelected ? DuelColors.accentGold.withOpacity(0.15) : Colors.transparent,
                 shape: BoxShape.circle,
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: DFTheme.gold.withOpacity( 0.2),
+                          color: DuelColors.accentGold.withOpacity(0.2),
                           blurRadius: 12,
                           spreadRadius: 2,
                         )

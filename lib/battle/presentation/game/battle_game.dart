@@ -17,19 +17,25 @@ import 'components/ghost_component.dart';
 import '../../../features/battle/models/carta.dart'; // For UI Model
 import '../../domain/config/battle_tuning.dart';
 import 'components/damage_number_component.dart';
+import 'components/damage_number_component.dart';
 
 class BattleGame extends FlameGame with TapDetector, PanDetector {
+  @override
+  Color backgroundColor() => const Color(0x00000000); // Transparent to show Flutter background
+
   final MatchState matchState;
   final MatchLoop matchLoop;
   final Function(Carta, Vector2) onDeploy;
   final VoidCallback onCancel;
+  
+  final String arenaAssetPath; // Added
   
   // Layers
   late final World world;
   late final CameraComponent cameraComponent;
   
   // Component Maps for Sync
-  final Map<String, Unit3DFakeComponent> _unitComponents = {}; // Changed
+  final Map<String, Unit3DFakeComponent> _unitComponents = {}; 
   final Map<String, Building3DFakeComponent> _buildingComponents = {};
   final Map<String, Tower3DFakeComponent> _towerComponents = {};
   final Map<String, SpellAreaComponent> _spellComponents = {};
@@ -46,11 +52,15 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
     required this.matchLoop,
     required this.onDeploy,
     required this.onCancel,
+    required this.arenaAssetPath, // Added
   });
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+
+    // 0. Background is now handled by Flutter Layer in BattleScreen for robustness
+    // add(ArenaBackgroundComponent(assetPath: arenaAssetPath));
 
     // 1. Setup World & Camera
     world = World();
@@ -72,6 +82,20 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
 
     // 2. Initial Sync
     _syncState();
+    
+    // Debug: List all components to find the "Pink Screen" culprit
+    debugPrint('BattleGame: Components in world: ${world.children.length}');
+    for (final c in world.children) {
+      debugPrint(' - World Child: ${c.runtimeType} pos=${(c as PositionComponent).position} size=${c.size}');
+    }
+    debugPrint('BattleGame: Components in game: ${children.length}');
+    for (final c in children) {
+       if (c is PositionComponent) {
+         debugPrint(' - Game Child: ${c.runtimeType} pos=${c.position} size=${c.size}');
+       } else {
+         debugPrint(' - Game Child: ${c.runtimeType}');
+       }
+    }
   }
 
   DamageNumberComponent getDamageNumber(int value, Vector2 position) {

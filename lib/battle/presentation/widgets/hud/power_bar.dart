@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../features/battle/viewmodels/battle_view_model.dart';
+import '../../../../ui/theme/duel_colors.dart';
+import '../../../../ui/theme/duel_typography.dart';
+import '../../../../ui/theme/duel_ui_tokens.dart';
 
 class PowerBar extends StatelessWidget {
   const PowerBar({super.key});
@@ -15,11 +18,11 @@ class PowerBar extends StatelessWidget {
         final progress = (current / max).clamp(0.0, 1.0);
 
         return Container(
-          height: 20,
+          height: 24,
           decoration: BoxDecoration(
             color: Colors.black54,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.purple.withOpacity(0.5)),
+            borderRadius: BorderRadius.circular(DuelUiTokens.radiusFull),
+            border: Border.all(color: DuelColors.secondary.withOpacity(0.5)),
           ),
           child: Stack(
             children: [
@@ -31,9 +34,9 @@ class PowerBar extends StatelessWidget {
                     width: constraints.maxWidth * progress,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF9C27B0), Color(0xFFE040FB)],
+                        colors: [DuelColors.secondary, Color(0xFFE040FB)],
                       ),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(DuelUiTokens.radiusFull),
                     ),
                   );
                 },
@@ -60,12 +63,7 @@ class PowerBar extends StatelessWidget {
               Center(
                 child: Text(
                   '${current.toInt()}/10',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    shadows: [Shadow(color: Colors.black, blurRadius: 2)],
-                  ),
+                  style: DuelTypography.hudNumber.copyWith(fontSize: 14),
                 ),
               ),
             ],

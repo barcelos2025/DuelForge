@@ -14,7 +14,13 @@ class AssetRegistry {
 
   static String getCardAsset(String cardId) {
     // cardId ex: "df_card_thor_v01.jpg"
+    // Returns path relative to Flame.images.prefix (assets/)
     return '$cardsPath$cardId';
+  }
+
+  static String getCardAssetPath(String cardId) {
+    // Returns full path for Flutter Image.asset
+    return 'assets/$cardsPath$cardId';
   }
 
   static const List<String> _arenaFiles = [

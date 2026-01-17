@@ -50,7 +50,8 @@ class _BattleScreenState extends State<BattleScreen> {
           },
           onCancel: () {
              _vm!.selecionarCarta(null);
-          }
+          },
+          arenaAssetPath: _vm!.currentArena.assetPath,
         );
       });
       
@@ -141,13 +142,16 @@ class _BattleScreenState extends State<BattleScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. Arena (Background)
-          _ArenaBackground(arenaIndex: _arenaIndex),
+          // 1. Arena (Background) - Flutter Layer (Robust)
+          _ArenaBackground(assetPath: vm.currentArena.assetPath),
 
           // 2. Game Engine (Flame)
           Positioned.fill(
             child: _game != null 
-                ? GameWidget(game: _game!) 
+                ? GameWidget(
+                    game: _game!,
+                    backgroundBuilder: (context) => const SizedBox.shrink(), // Ensure transparency
+                  ) 
                 : const Center(child: CircularProgressIndicator()),
           ),
 
@@ -181,15 +185,15 @@ class _BattleScreenState extends State<BattleScreen> {
 }
 
 class _ArenaBackground extends StatelessWidget {
-  final int arenaIndex;
-  const _ArenaBackground({required this.arenaIndex});
+  final String assetPath;
+  const _ArenaBackground({required this.assetPath});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(AssetRegistry.getArenaAsset(arenaIndex)),
+          image: AssetImage(assetPath),
           fit: BoxFit.cover,
         ),
       ),

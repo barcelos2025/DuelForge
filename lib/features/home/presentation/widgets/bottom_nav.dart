@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../ui/theme/df_theme.dart';
+import '../../../../ui/theme/duel_colors.dart';
+import '../../../../ui/theme/duel_typography.dart';
+import '../../../../ui/theme/duel_ui_tokens.dart';
 
 class DuelForgeBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -47,7 +49,7 @@ class DuelForgeBottomNav extends StatelessWidget {
 
   Widget _buildNavItem(int index, IconData icon, String label, {bool isMain = false}) {
     final isSelected = currentIndex == index;
-    final color = isSelected ? DFTheme.cyan : Colors.white24;
+    final color = isSelected ? DuelColors.primary : Colors.white24;
     
     return GestureDetector(
       onTap: () {
@@ -65,11 +67,11 @@ class DuelForgeBottomNav extends StatelessWidget {
               padding: EdgeInsets.all(isMain ? 12 : 8),
               decoration: isMain && isSelected
                   ? BoxDecoration(
-                      color: DFTheme.cyan.withOpacity(0.1),
+                      color: DuelColors.primary.withOpacity(0.1),
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: DFTheme.cyan.withOpacity(0.2),
+                          color: DuelColors.primary.withOpacity(0.2),
                           blurRadius: 12,
                         ),
                       ],

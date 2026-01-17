@@ -1,114 +1,101 @@
 import 'package:flutter/material.dart';
+import 'duel_colors.dart';
+import 'duel_typography.dart';
+import 'duel_ui_tokens.dart';
 
 class DFTheme {
-  // Cores da Paleta
-  static const Color background = Color(0xFF0B1320); // Azul-noite profundo
-  static const Color surface = Color(0xFF13243A); // Azul-acinzentado para painéis
-  static const Color surfaceLight = Color(0xFF1F3A5A); // Highlight de superfície
-  
-  static const Color cyan = Color(0xFF00FFFF); // Magia rúnica (Neon)
-  static const Color cyanDim = Color(0xFF008B8B);
-  
-  static const Color gold = Color(0xFFFFC44D); // Ouro / Lendário
-  static const Color goldDim = Color(0xFFB8860B);
-  
-  static const Color purple = Color(0xFFB35CFF); // Épico
-  static const Color red = Color(0xFFFF5D5D); // Perigo / Inimigo
-  static const Color green = Color(0xFF8BEA7C); // Aliado / Cura
-  
-  static const Color ice = Color(0xFFA5F2F3); // Gelo / Inverno
-  static const Color fire = Color(0xFFFF7F50); // Fogo / Verão
+  static ThemeData get darkTheme {
+    return ThemeData(
+      brightness: Brightness.dark,
+      primaryColor: DuelColors.primary,
+      scaffoldBackgroundColor: DuelColors.background,
+      
+      // Font Family
+      fontFamily: DuelTypography.fontUI,
+      
+      // Text Theme
+      textTheme: const TextTheme(
+        displayLarge: DuelTypography.displayLarge,
+        displayMedium: DuelTypography.displayMedium,
+        displaySmall: DuelTypography.displaySmall,
+        bodyLarge: DuelTypography.bodyLarge,
+        bodyMedium: DuelTypography.bodyMedium,
+        bodySmall: DuelTypography.bodySmall,
+        labelSmall: DuelTypography.labelCaps,
+      ),
 
-  static const Color textPrimary = Colors.white;
-  static const Color textSecondary = Colors.white70;
+      // Color Scheme
+      colorScheme: const ColorScheme.dark(
+        primary: DuelColors.primary,
+        secondary: DuelColors.secondary,
+        surface: DuelColors.surface,
+        error: DuelColors.error,
+        onPrimary: Colors.black,
+        onSecondary: Colors.white,
+        onSurface: DuelColors.textPrimary,
+      ),
 
-  // Gradientes
-  static const LinearGradient gradientBg = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFF13243A), Color(0xFF07101B)],
+      // Card Theme
+      // Card Theme
+      cardTheme: CardThemeData(
+        color: DuelColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DuelUiTokens.radiusMedium),
+          side: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        elevation: 0,
+      ),
+
+      // Icon Theme
+      iconTheme: const IconThemeData(
+        color: DuelColors.textSecondary,
+        size: 24,
+      ),
+      
+      // Divider
+      dividerTheme: DividerThemeData(
+        color: Colors.white.withOpacity(0.1),
+        thickness: 1,
+        space: DuelUiTokens.spacing24,
+      ),
+    );
+  }
+
+  // Proxies for backward compatibility and ease of use
+  static const Color background = DuelColors.background;
+  static const Color surface = DuelColors.surface;
+  static const Color primary = DuelColors.primary;
+  static const Color secondary = DuelColors.secondary;
+  static const Color cyan = DuelColors.primary;
+  static const Color purple = DuelColors.secondary;
+  static const Color gold = DuelColors.accentGold;
+  static const Color ice = Color(0xFFB3E5FC); // Light Blue for Ice theme
+
+  static const TextStyle displayLarge = DuelTypography.displayLarge;
+  static const TextStyle titleLarge = DuelTypography.displayMedium; // Mapping titleLarge to displayMedium
+  static const TextStyle titleMedium = DuelTypography.displaySmall; // Mapping titleMedium to displaySmall
+  static const TextStyle labelBold = DuelTypography.labelCaps;
+  static const TextStyle bodyText = DuelTypography.bodyMedium;
+
+  static final List<BoxShadow> shadowDepth = DuelUiTokens.shadowMedium;
+  static final List<BoxShadow> glowCyan = DuelUiTokens.glowCyan;
+
+  static final BoxDecoration glassPanelDecoration = BoxDecoration(
+    color: DuelColors.surface.withOpacity(0.8),
+    borderRadius: BorderRadius.circular(DuelUiTokens.radiusMedium),
+    border: Border.all(color: Colors.white.withOpacity(0.1)),
+    boxShadow: DuelUiTokens.shadowMedium,
   );
 
   static const LinearGradient gradientMetal = LinearGradient(
+    colors: [Color(0xFF424242), Color(0xFF212121)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF4A5C70), Color(0xFF2C3E50)],
-  );
-
-  static const LinearGradient gradientGold = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFFFD700), Color(0xFFDAA520)],
-  );
-
-  // Sombras e Glows
-  static List<BoxShadow> glowCyan = [
-    BoxShadow(
-      color: cyan.withOpacity( 0.4),
-      blurRadius: 12,
-      spreadRadius: 1,
-    ),
-  ];
-
-  static List<BoxShadow> shadowDepth = [
-    BoxShadow(
-      color: Colors.black.withOpacity( 0.5),
-      offset: const Offset(0, 4),
-      blurRadius: 8,
-    ),
-  ];
-
-  // Tipografia
-  static const TextStyle titleLarge = TextStyle(
-    fontFamily: 'Verdana', // Fallback seguro
-    fontSize: 28,
-    fontWeight: FontWeight.w900,
-    letterSpacing: 1.5,
-    color: textPrimary,
-    shadows: [
-      Shadow(color: Colors.black, offset: Offset(2, 2), blurRadius: 4),
-    ],
-  );
-
-  static const TextStyle titleMedium = TextStyle(
-    fontFamily: 'Verdana',
-    fontSize: 20,
-    fontWeight: FontWeight.w800,
-    letterSpacing: 1.2,
-    color: textPrimary,
-  );
-
-  static const TextStyle bodyText = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    color: textSecondary,
-    height: 1.4,
-  );
-
-  static const TextStyle labelBold = TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.w900,
-    color: textPrimary,
-    letterSpacing: 0.5,
-  );
-
-  // Decorações de Container
-  static BoxDecoration glassPanelDecoration = BoxDecoration(
-    color: surface.withOpacity( 0.85),
-    borderRadius: BorderRadius.circular(20),
-    border: Border.all(color: Colors.white.withOpacity( 0.1), width: 1),
-    boxShadow: shadowDepth,
   );
   
-  static BoxDecoration metalBorderDecoration = BoxDecoration(
-    borderRadius: BorderRadius.circular(22),
-    gradient: gradientMetal,
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity( 0.6),
-        offset: const Offset(0, 2),
-        blurRadius: 4,
-      ),
-    ],
+  static const LinearGradient gradientGold = LinearGradient(
+    colors: [DuelColors.accentGold, Color(0xFFFFA000)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
   );
 }

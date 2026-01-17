@@ -1,5 +1,8 @@
+import '../../features/cards/domain/models/card_stats.dart';
 
 enum CardType { tropa, construcao, feitico }
+
+enum CardRarity { common, rare, epic, legendary }
 
 class CardDefinition {
   final String cardId;
@@ -8,6 +11,9 @@ class CardDefinition {
   final String archetype;
   final String function;
   final List<String> tags;
+  final CardRarity rarity;
+  final String displayName;
+  final CardStats? stats;
 
   const CardDefinition({
     required this.cardId,
@@ -16,6 +22,9 @@ class CardDefinition {
     required this.archetype,
     required this.function,
     this.tags = const [],
+    this.rarity = CardRarity.common,
+    this.displayName = '',
+    this.stats,
   });
 }
 
@@ -28,6 +37,21 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'bruiser',
     function: 'Líder de pressão e frontline consistente',
     tags: ['melee', 'ground', 'fighter'],
+    displayName: 'Axe Commander',
+    rarity: CardRarity.rare,
+    stats: UnitStats(
+      powerCost: 5,
+      cooldownSec: 1.5,
+      targets: [TargetType.ground],
+      role: 'Bruiser',
+      components: 1,
+      hitPoints: 1200,
+      damagePerHit: 180,
+      attacksPerSecond: 0.8,
+      moveSpeedTilesPerSec: 2.5,
+      rangeTiles: 1.0,
+      isMelee: true,
+    ),
   ),
   // 2) Bear Berserker
   CardDefinition(
@@ -37,6 +61,21 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'assassin',
     function: 'Burst melee para eliminar backline',
     tags: ['melee', 'ground', 'burst'],
+    displayName: 'Bear Berserker',
+    rarity: CardRarity.epic,
+    stats: UnitStats(
+      powerCost: 4,
+      cooldownSec: 1.2,
+      targets: [TargetType.ground],
+      role: 'Assassin',
+      components: 1,
+      hitPoints: 900,
+      damagePerHit: 250,
+      attacksPerSecond: 1.2,
+      moveSpeedTilesPerSec: 3.5,
+      rangeTiles: 1.0,
+      isMelee: true,
+    ),
   ),
   // 3) Brynhild
   CardDefinition(
@@ -46,6 +85,22 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'bruiser_aoe',
     function: 'Anti-horda e controle de lane',
     tags: ['melee', 'ground', 'aoe'],
+    displayName: 'Brynhild',
+    rarity: CardRarity.epic,
+    stats: UnitStats(
+      powerCost: 5,
+      cooldownSec: 1.6,
+      targets: [TargetType.ground],
+      role: 'Area Control',
+      components: 1,
+      hitPoints: 1100,
+      damagePerHit: 140,
+      attacksPerSecond: 1.0,
+      moveSpeedTilesPerSec: 2.2,
+      rangeTiles: 1.5,
+      isMelee: true,
+      splashRadiusTiles: 1.5,
+    ),
   ),
   // 4) Catapult
   CardDefinition(
@@ -55,6 +110,23 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'siege',
     function: 'Pressão longa na lane, dano por hit alto',
     tags: ['building', 'siege', 'ground', 'long_range'],
+    displayName: 'Catapult',
+    rarity: CardRarity.common,
+    stats: BuildingStats(
+      powerCost: 6,
+      cooldownSec: 4.0,
+      targets: [TargetType.ground, TargetType.building],
+      role: 'Siege',
+      components: 1,
+      hitPoints: 800,
+      lifetimeSec: 40,
+      canAttack: true,
+      damagePerHit: 400,
+      attacksPerSecond: 0.2, // 5s reload
+      rangeTiles: 11.0,
+      projectileSpeedTilesPerSec: 4.0,
+      splashRadiusTiles: 2.0,
+    ),
   ),
   // 5) Fire Catapult
   CardDefinition(
@@ -64,6 +136,23 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'siege_dot',
     function: 'Zona de dano e anti-horda com burn',
     tags: ['building', 'siege', 'ground', 'aoe', 'dot'],
+    displayName: 'Fire Catapult',
+    rarity: CardRarity.rare,
+    stats: BuildingStats(
+      powerCost: 7,
+      cooldownSec: 4.5,
+      targets: [TargetType.ground, TargetType.building],
+      role: 'Siege / Area',
+      components: 1,
+      hitPoints: 850,
+      lifetimeSec: 35,
+      canAttack: true,
+      damagePerHit: 300,
+      attacksPerSecond: 0.25, // 4s reload
+      rangeTiles: 10.0,
+      projectileSpeedTilesPerSec: 4.0,
+      splashRadiusTiles: 2.5,
+    ),
   ),
   // 6) Freyja
   CardDefinition(
@@ -73,6 +162,22 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'support_caster',
     function: 'Suporte (buff/escudo/cura leve)',
     tags: ['ranged', 'ground', 'support', 'healer'],
+    displayName: 'Freyja',
+    rarity: CardRarity.epic,
+    stats: UnitStats(
+      powerCost: 4,
+      cooldownSec: 2.0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Support',
+      components: 1,
+      hitPoints: 600,
+      damagePerHit: 80,
+      attacksPerSecond: 1.0,
+      moveSpeedTilesPerSec: 2.5,
+      rangeTiles: 5.0,
+      isMelee: false,
+      projectileSpeedTilesPerSec: 6.0,
+    ),
   ),
   // 7) Frost Gate
   CardDefinition(
@@ -82,6 +187,19 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'defensive_control',
     function: 'Controle (slow em área) e segurar push',
     tags: ['building', 'defensive', 'control', 'slow'],
+    displayName: 'Frost Gate',
+    rarity: CardRarity.rare,
+    stats: BuildingStats(
+      powerCost: 4,
+      cooldownSec: 1.0,
+      targets: [TargetType.ground],
+      role: 'Defense',
+      components: 1,
+      hitPoints: 1400,
+      lifetimeSec: 40,
+      canAttack: false,
+      taunt: true,
+    ),
   ),
   // 8) Frost Ranger
   CardDefinition(
@@ -91,6 +209,22 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'ranged_dps_control',
     function: 'Ranged com slow leve para kite',
     tags: ['ranged', 'ground', 'control', 'slow'],
+    displayName: 'Frost Ranger',
+    rarity: CardRarity.common,
+    stats: UnitStats(
+      powerCost: 3,
+      cooldownSec: 1.0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Ranged DPS',
+      components: 1,
+      hitPoints: 400,
+      damagePerHit: 90,
+      attacksPerSecond: 1.1,
+      moveSpeedTilesPerSec: 3.0,
+      rangeTiles: 5.5,
+      isMelee: false,
+      projectileSpeedTilesPerSec: 7.0,
+    ),
   ),
   // 9) Hailstorm
   CardDefinition(
@@ -100,6 +234,20 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'spell_control_slow',
     function: 'Controle em área (slow) e dano leve',
     tags: ['spell', 'aoe', 'control', 'slow'],
+    displayName: 'Hailstorm',
+    rarity: CardRarity.common,
+    stats: SpellStats(
+      powerCost: 4,
+      cooldownSec: 0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Control',
+      components: 0,
+      durationSec: 5.0,
+      radiusTiles: 3.5,
+      tickIntervalSec: 1.0,
+      damagePerTick: 40,
+      slowPercent: 35,
+    ),
   ),
   // 10) Ice Runner
   CardDefinition(
@@ -109,6 +257,21 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'assassin_mobile',
     function: 'Ciclo rápido e pressão (dive)',
     tags: ['melee', 'ground', 'fast', 'cycle'],
+    displayName: 'Ice Runner',
+    rarity: CardRarity.common,
+    stats: UnitStats(
+      powerCost: 2,
+      cooldownSec: 0.8,
+      targets: [TargetType.ground],
+      role: 'Cycle / Pressure',
+      components: 1,
+      hitPoints: 250,
+      damagePerHit: 110,
+      attacksPerSecond: 1.5,
+      moveSpeedTilesPerSec: 4.5,
+      rangeTiles: 1.0,
+      isMelee: true,
+    ),
   ),
   // 11) Lightning Cloud
   CardDefinition(
@@ -118,6 +281,18 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'spell_burst_control',
     function: 'Burst + stun curto para virar troca',
     tags: ['spell', 'aoe', 'burst', 'stun'],
+    displayName: 'Lightning Cloud',
+    rarity: CardRarity.epic,
+    stats: SpellStats(
+      powerCost: 5,
+      cooldownSec: 0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Burst / Stun',
+      components: 0,
+      damageInstant: 300,
+      radiusTiles: 2.5,
+      freezeSec: 0.5, // Stun effect
+    ),
   ),
   // 12) Loki Trickery
   CardDefinition(
@@ -127,6 +302,17 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'spell_utility_control',
     function: 'Disrupt (confusão) para outplay',
     tags: ['spell', 'utility', 'control'],
+    displayName: 'Loki\'s Trickery',
+    rarity: CardRarity.epic,
+    stats: SpellStats(
+      powerCost: 4,
+      cooldownSec: 0,
+      targets: [TargetType.ground],
+      role: 'Utility',
+      components: 0,
+      radiusTiles: 3.0,
+      durationSec: 4.0,
+    ),
   ),
   // 13) Odyn Master
   CardDefinition(
@@ -136,6 +322,22 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'bruiser_caster_mestre',
     function: 'Condição de vitória late game',
     tags: ['melee', 'ranged', 'ground', 'legendary', 'win_condition'],
+    displayName: 'Odyn Master',
+    rarity: CardRarity.legendary,
+    stats: UnitStats(
+      powerCost: 10,
+      cooldownSec: 3.0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Win Condition',
+      components: 1,
+      hitPoints: 3500,
+      damagePerHit: 400,
+      attacksPerSecond: 0.6,
+      moveSpeedTilesPerSec: 1.5,
+      rangeTiles: 4.0,
+      isMelee: false,
+      splashRadiusTiles: 2.0,
+    ),
   ),
   // 14) Odyn Ravens
   CardDefinition(
@@ -145,6 +347,21 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'swarm_anti_air',
     function: 'Anti-air barato e distração',
     tags: ['flying', 'swarm', 'cheap'],
+    displayName: 'Odyn\'s Ravens',
+    rarity: CardRarity.common,
+    stats: UnitStats(
+      powerCost: 2,
+      cooldownSec: 1.0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Swarm',
+      components: 3,
+      hitPoints: 80,
+      damagePerHit: 40,
+      attacksPerSecond: 1.2,
+      moveSpeedTilesPerSec: 3.5,
+      rangeTiles: 1.0,
+      isMelee: true,
+    ),
   ),
   // 15) Palisade Wall
   CardDefinition(
@@ -154,6 +371,19 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'wall',
     function: 'Bloqueio e controle de caminho',
     tags: ['building', 'defensive', 'wall'],
+    displayName: 'Palisade Wall',
+    rarity: CardRarity.common,
+    stats: BuildingStats(
+      powerCost: 3,
+      cooldownSec: 1.0,
+      targets: [TargetType.ground],
+      role: 'Defense',
+      components: 1,
+      hitPoints: 1000,
+      lifetimeSec: 30,
+      canAttack: false,
+      taunt: true,
+    ),
   ),
   // 16) Poison
   CardDefinition(
@@ -163,6 +393,19 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'spell_dot_zone',
     function: 'Nega área e derrete suporte/horda',
     tags: ['spell', 'aoe', 'dot', 'zone'],
+    displayName: 'Poison',
+    rarity: CardRarity.rare,
+    stats: SpellStats(
+      powerCost: 4,
+      cooldownSec: 0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Area Denial',
+      components: 0,
+      durationSec: 8.0,
+      radiusTiles: 3.5,
+      tickIntervalSec: 1.0,
+      damagePerTick: 60,
+    ),
   ),
   // 17) Runic Spear Rain
   CardDefinition(
@@ -172,6 +415,17 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'spell_burst_aoe',
     function: 'Burst em área para limpar backline/horda',
     tags: ['spell', 'aoe', 'burst'],
+    displayName: 'Runic Spear Rain',
+    rarity: CardRarity.rare,
+    stats: SpellStats(
+      powerCost: 4,
+      cooldownSec: 0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Area Burst',
+      components: 0,
+      damageInstant: 220,
+      radiusTiles: 2.5,
+    ),
   ),
   // 18) Shield Warrior
   CardDefinition(
@@ -181,6 +435,21 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'tank',
     function: 'Âncora barata para segurar lane',
     tags: ['melee', 'ground', 'tank', 'defensive'],
+    displayName: 'Shield Warrior',
+    rarity: CardRarity.common,
+    stats: UnitStats(
+      powerCost: 3,
+      cooldownSec: 1.0,
+      targets: [TargetType.ground],
+      role: 'Tank',
+      components: 1,
+      hitPoints: 800,
+      damagePerHit: 90,
+      attacksPerSecond: 1.0,
+      moveSpeedTilesPerSec: 2.0,
+      rangeTiles: 1.0,
+      isMelee: true,
+    ),
   ),
   // 19) Skald Bard
   CardDefinition(
@@ -190,6 +459,21 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'support_buffer',
     function: 'Aura de buff para push',
     tags: ['ranged', 'ground', 'support', 'buffer'],
+    displayName: 'Skald Bard',
+    rarity: CardRarity.rare,
+    stats: UnitStats(
+      powerCost: 3,
+      cooldownSec: 1.5,
+      targets: [TargetType.ground],
+      role: 'Support',
+      components: 1,
+      hitPoints: 500,
+      damagePerHit: 60,
+      attacksPerSecond: 1.0,
+      moveSpeedTilesPerSec: 2.5,
+      rangeTiles: 4.0,
+      isMelee: false,
+    ),
   ),
   // 20) Thor
   CardDefinition(
@@ -199,6 +483,23 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'bruiser',
     function: 'Frontline forte e burst em alvo',
     tags: ['melee', 'ground', 'tank', 'damage'],
+    displayName: 'Thor',
+    rarity: CardRarity.legendary,
+    stats: UnitStats(
+      powerCost: 6,
+      cooldownSec: 2.0,
+      targets: [TargetType.ground],
+      role: 'Tank / Burst',
+      components: 1,
+      hitPoints: 1600,
+      damagePerHit: 300,
+      attacksPerSecond: 0.9,
+      moveSpeedTilesPerSec: 2.2,
+      rangeTiles: 1.5,
+      isMelee: true,
+      chainMaxTargets: 3,
+      chainFalloffPercent: 0.3,
+    ),
   ),
   // 21) Thunder Hammer
   CardDefinition(
@@ -208,6 +509,18 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'spell_burst',
     function: 'Impacto rápido em área pequena',
     tags: ['spell', 'aoe', 'burst', 'cheap'],
+    displayName: 'Thunder Hammer',
+    rarity: CardRarity.common,
+    stats: SpellStats(
+      powerCost: 3,
+      cooldownSec: 0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Small Burst',
+      components: 0,
+      damageInstant: 350,
+      radiusTiles: 1.5,
+      freezeSec: 1.0, // Stun
+    ),
   ),
   // 22) Troll Huntress
   CardDefinition(
@@ -217,6 +530,22 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'ranged_dps',
     function: 'Backline DPS consistente',
     tags: ['ranged', 'ground', 'dps'],
+    displayName: 'Troll Huntress',
+    rarity: CardRarity.rare,
+    stats: UnitStats(
+      powerCost: 4,
+      cooldownSec: 1.0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Ranged DPS',
+      components: 1,
+      hitPoints: 550,
+      damagePerHit: 160,
+      attacksPerSecond: 1.1,
+      moveSpeedTilesPerSec: 3.0,
+      rangeTiles: 6.0,
+      isMelee: false,
+      projectileSpeedTilesPerSec: 8.0,
+    ),
   ),
   // 23) Tyr
   CardDefinition(
@@ -226,6 +555,21 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'tank',
     function: 'Tanque principal com presença',
     tags: ['melee', 'ground', 'tank'],
+    displayName: 'Tyr',
+    rarity: CardRarity.epic,
+    stats: UnitStats(
+      powerCost: 5,
+      cooldownSec: 1.8,
+      targets: [TargetType.ground],
+      role: 'Main Tank',
+      components: 1,
+      hitPoints: 1800,
+      damagePerHit: 120,
+      attacksPerSecond: 1.0,
+      moveSpeedTilesPerSec: 2.0,
+      rangeTiles: 1.0,
+      isMelee: true,
+    ),
   ),
   // 24) Ulf Legendary
   CardDefinition(
@@ -235,6 +579,21 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'assassin',
     function: 'Pickoff lendário (alto risco/alto retorno)',
     tags: ['melee', 'ground', 'assassin', 'legendary'],
+    displayName: 'Ulf Legendary',
+    rarity: CardRarity.legendary,
+    stats: UnitStats(
+      powerCost: 6,
+      cooldownSec: 1.5,
+      targets: [TargetType.ground],
+      role: 'Assassin',
+      components: 1,
+      hitPoints: 1000,
+      damagePerHit: 450,
+      attacksPerSecond: 1.0,
+      moveSpeedTilesPerSec: 4.0,
+      rangeTiles: 1.0,
+      isMelee: true,
+    ),
   ),
   // 25) Voodoo Doll
   CardDefinition(
@@ -244,6 +603,18 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'spell_curse_debuff',
     function: 'Setup (amplifica dano)',
     tags: ['spell', 'debuff', 'curse'],
+    displayName: 'Voodoo Doll',
+    rarity: CardRarity.epic,
+    stats: SpellStats(
+      powerCost: 3,
+      cooldownSec: 0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Debuff',
+      components: 0,
+      radiusTiles: 2.5,
+      durationSec: 6.0,
+      slowPercent: 20,
+    ),
   ),
   // 26) Watchtower
   CardDefinition(
@@ -253,6 +624,22 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'defensive_ranged',
     function: 'Defesa e anti-air',
     tags: ['building', 'defensive', 'ranged', 'anti-air'],
+    displayName: 'Watchtower',
+    rarity: CardRarity.common,
+    stats: BuildingStats(
+      powerCost: 4,
+      cooldownSec: 1.0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Defense',
+      components: 1,
+      hitPoints: 900,
+      lifetimeSec: 40,
+      canAttack: true,
+      damagePerHit: 120,
+      attacksPerSecond: 1.2,
+      rangeTiles: 6.0,
+      projectileSpeedTilesPerSec: 7.0,
+    ),
   ),
   // 27) Whale Hunter
   CardDefinition(
@@ -262,6 +649,22 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'ranged_dps_anti_tank',
     function: 'Dano alto em alvo único vs tanques',
     tags: ['ranged', 'ground', 'dps', 'anti-tank'],
+    displayName: 'Whale Hunter',
+    rarity: CardRarity.rare,
+    stats: UnitStats(
+      powerCost: 5,
+      cooldownSec: 1.5,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Anti-Tank',
+      components: 1,
+      hitPoints: 650,
+      damagePerHit: 280,
+      attacksPerSecond: 0.8,
+      moveSpeedTilesPerSec: 2.8,
+      rangeTiles: 7.0,
+      isMelee: false,
+      projectileSpeedTilesPerSec: 9.0,
+    ),
   ),
   // 28) Winged Demon Legendary
   CardDefinition(
@@ -271,5 +674,20 @@ const List<CardDefinition> cardCatalog = [
     archetype: 'assassin_anti_air_legendary',
     function: 'Ameaça aérea com burst',
     tags: ['flying', 'assassin', 'legendary', 'burst'],
+    displayName: 'Winged Demon',
+    rarity: CardRarity.legendary,
+    stats: UnitStats(
+      powerCost: 7,
+      cooldownSec: 2.0,
+      targets: [TargetType.ground, TargetType.air],
+      role: 'Flying Assassin',
+      components: 1,
+      hitPoints: 1300,
+      damagePerHit: 320,
+      attacksPerSecond: 1.1,
+      moveSpeedTilesPerSec: 3.5,
+      rangeTiles: 1.5,
+      isMelee: true,
+    ),
   ),
 ];

@@ -85,7 +85,7 @@ class QuickActionsGrid extends StatelessWidget {
         }
       },
       child: Container(
-        height: 100,
+        height: 120,
         decoration: DFTheme.glassPanelDecoration.copyWith(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: color.withOpacity(0.2)),

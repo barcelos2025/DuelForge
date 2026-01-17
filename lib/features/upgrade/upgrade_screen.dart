@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../battle/data/card_catalog.dart';
 import '../../battle/data/balance_rules.dart';
 import '../profile/services/profile_service.dart';
+import '../../core/assets/asset_registry.dart';
 
 class UpgradeScreen extends StatelessWidget {
   const UpgradeScreen({super.key});
@@ -77,7 +78,7 @@ class UpgradeScreen extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.asset(
-                        'assets/images/cards/${def.cardId}',
+                        AssetRegistry.getCardAsset(def.cardId),
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Center(
                           child: Icon(

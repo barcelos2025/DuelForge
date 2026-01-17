@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../features/battle/viewmodels/battle_view_model.dart';
 import '../../../../features/battle/models/carta.dart';
+import '../../../../ui/theme/duel_colors.dart';
 
 class HandCardsRow extends StatelessWidget {
   const HandCardsRow({super.key});
@@ -55,6 +56,31 @@ class _CardSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Resolve Rarity Color
+    Color borderColor = Colors.white10;
+    Color shadowColor = Colors.transparent;
+    
+    // Map string rarity to color
+    switch (carta.raridade.toLowerCase()) {
+      case 'comum':
+      case 'common':
+        borderColor = DuelColors.rarityCommon;
+        break;
+      case 'rara':
+      case 'rare':
+        borderColor = DuelColors.rarityRare;
+        break;
+      case 'epica':
+      case 'epic':
+        borderColor = DuelColors.rarityEpic;
+        break;
+      case 'lendaria':
+      case 'legendary':
+        borderColor = DuelColors.rarityLegendary;
+        break;
+    }
+    shadowColor = borderColor.withOpacity(0.25);
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       width: isSelected ? 80 : 70,
@@ -64,12 +90,28 @@ class _CardSlot extends StatelessWidget {
         color: const Color(0xFF2A2A3A),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isSelected ? Colors.cyanAccent : (canAfford ? Colors.transparent : Colors.red.withOpacity(0.5)),
-          width: isSelected ? 3 : 1,
+          // If selected, use Cyan. If not selected but can afford, use Rarity Color. If cannot afford, use Red/Dimmed.
+          color: isSelected 
+              ? Colors.cyanAccent 
+              : (canAfford ? borderColor : Colors.red.withOpacity(0.5)),
+          width: isSelected ? 3 : 2,
         ),
-        boxShadow: isSelected
-            ? [BoxShadow(color: Colors.cyanAccent.withOpacity(0.4), blurRadius: 10, spreadRadius: 2)]
-            : [],
+        boxShadow: [
+          // Rarity Glow (always present if affordable, or just subtle)
+          if (canAfford && !isSelected)
+            BoxShadow(
+              color: shadowColor,
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+          // Selection Glow
+          if (isSelected)
+            BoxShadow(
+              color: Colors.cyanAccent.withOpacity(0.4), 
+              blurRadius: 10, 
+              spreadRadius: 2
+            ),
+        ],
       ),
       child: Stack(
         children: [

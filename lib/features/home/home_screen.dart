@@ -3,14 +3,16 @@ import '../../ui/theme/df_theme.dart';
 import '../../app/navigation/rotas.dart';
 
 // Widgets
-import 'widgets/profile_header.dart';
-import 'widgets/wallet_row.dart';
-import 'widgets/season_hero_card.dart';
-import 'widgets/battle_cta_button.dart';
-import 'widgets/quick_actions_grid.dart';
-import 'widgets/events_carousel.dart';
-import 'widgets/bottom_nav.dart';
-import 'widgets/snow_particles.dart';
+import 'presentation/widgets/profile_header.dart';
+import 'presentation/widgets/wallet_row.dart';
+import 'presentation/widgets/season_hero_card.dart';
+import 'presentation/widgets/battle_cta_button.dart';
+import 'presentation/widgets/quick_actions_grid.dart';
+import 'presentation/widgets/events_carousel.dart';
+import 'presentation/widgets/bottom_nav.dart';
+import 'presentation/widgets/snow_particles.dart';
+import 'presentation/widgets/current_arena_card.dart';
+import '../battle/domain/models/arena_definition.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,7 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.pushNamed(context, Rotas.deck);
         break;
       case 2:
-        Navigator.pushNamed(context, Rotas.upgrade);
+        // Navigator.pushNamed(context, Rotas.upgrade);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Acesse o Deck para evoluir suas cartas!')),
+        );
         break;
       case 3:
         Navigator.pushNamed(context, Rotas.shop);
@@ -55,9 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
           // 1. Background Layer
           Positioned.fill(
             child: Image.asset(
-              'assets/images/Splash.png', // Using existing asset as placeholder
+              'assets/images/home_bg_storm_runes.png', // New premium background
               fit: BoxFit.cover,
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withOpacity(0.3), // Reduced overlay opacity for better visibility
               colorBlendMode: BlendMode.darken,
             ),
           ),
@@ -111,6 +116,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       SliverToBoxAdapter(
                         child: BattleCTAButton(
                           onTap: () => Navigator.pushNamed(context, Rotas.battle),
+                        ),
+                      ),
+
+                      // Current Arena
+                      SliverToBoxAdapter(
+                        child: CurrentArenaCard(
+                          arena: ArenaCatalog.getArenaForTrophies(0), // Mocked 0 trophies for now
                         ),
                       ),
                       

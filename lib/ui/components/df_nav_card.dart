@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../ui/theme/df_theme.dart';
+import '../../ui/theme/duel_colors.dart';
+import '../../ui/theme/duel_typography.dart';
+import '../../ui/theme/duel_ui_tokens.dart';
 
 class DFNavCard extends StatelessWidget {
   final String title;
@@ -22,7 +24,9 @@ class DFNavCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        decoration: DFTheme.glassPanelDecoration.copyWith(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(DuelUiTokens.radiusMedium),
+          boxShadow: DuelUiTokens.shadowMedium,
           image: DecorationImage(
             image: AssetImage(imageAsset),
             fit: BoxFit.cover,
@@ -54,13 +58,13 @@ class DFNavCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: DFTheme.titleMedium.copyWith(fontSize: 18),
+                style: DuelTypography.displaySmall.copyWith(fontSize: 18),
               ),
               if (subtitle != null) ...[
                 const SizedBox(height: 4),
                 Text(
                   subtitle!,
-                  style: DFTheme.bodyText.copyWith(fontSize: 12, color: DFTheme.cyan),
+                  style: DuelTypography.bodySmall.copyWith(fontSize: 12, color: DuelColors.primary),
                 ),
               ],
             ],

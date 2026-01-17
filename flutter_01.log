@@ -1,0 +1,79 @@
+Flutter crash report.
+Please report a bug at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter run -d chrome
+
+## exception
+
+PathAccessException: PathAccessException: Deletion failed, path = 'build\199e63d12aae48772fe1ad268adc4fc7.cache.dill.track.dill' (OS Error: O arquivo já está sendo usado por outro processo, errno = 32)
+
+```
+#0      _Directory._deleteSync (dart:io/directory_impl.dart:225:7)
+#1      FileSystemEntity.deleteSync (dart:io/file_system_entity.dart:425:7)
+#2      _File._deleteSync (dart:io/file_impl.dart:365:50)
+#3      FileSystemEntity.deleteSync (dart:io/file_system_entity.dart:425:7)
+#4      ForwardingFileSystemEntity.deleteSync (package:file/src/forwarding/forwarding_file_system_entity.dart:70:16)
+#5      ForwardingFileSystemEntity.deleteSync (package:file/src/forwarding/forwarding_file_system_entity.dart:70:16)
+#6      ErrorHandlingFileSystem.deleteIfExists (package:flutter_tools/src/base/error_handling_io.dart:90:14)
+#7      ErrorHandlingFile.copySync.<anonymous closure> (package:flutter_tools/src/base/error_handling_io.dart:330:35)
+#8      _runSync (package:flutter_tools/src/base/error_handling_io.dart:552:14)
+#9      ErrorHandlingFile.copySync (package:flutter_tools/src/base/error_handling_io.dart:313:5)
+#10     ResidentRunner.cacheInitialDillCompilation (package:flutter_tools/src/resident_runner.dart:1318:18)
+#11     ResidentWebRunner.run.<anonymous closure> (package:flutter_tools/src/isolated/resident_web_runner.dart:333:11)
+<asynchronous suspension>
+#12     asyncGuard.<anonymous closure> (package:flutter_tools/src/base/async_guard.dart:108:24)
+<asynchronous suspension>
+```
+
+## flutter doctor
+
+```
+[32m[✓][39m Flutter (Channel stable, 3.38.7, on Microsoft Windows [versÆo 10.0.19045.6466], locale pt-BR) [10,7s]
+    [32m•[39m Flutter version 3.38.7 on channel stable at C:\tools\flutter
+    [32m•[39m Upstream repository https://github.com/flutter/flutter.git
+    [32m•[39m Framework revision 3b62efc2a3 (3 days ago), 2026-01-13 13:47:42 -0800
+    [32m•[39m Engine revision 78fc3012e4
+    [32m•[39m Dart version 3.10.7
+    [32m•[39m DevTools version 2.51.1
+    [32m•[39m Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations,
+      enable-native-assets, omit-legacy-version-file, enable-lldb-debugging
+
+[32m[✓][39m Windows Version (10 Pro 64 bits, 22H2, 2009) [32,5s]
+
+[33m[!][39m Android toolchain - develop for Android devices (Android SDK version 36.1.0) [30,3s]
+    [32m•[39m Android SDK at C:\Users\Note\AppData\Local\Android\Sdk
+    [32m•[39m Emulator version 36.3.10.0 (build_id 14472402) (CL:N/A)
+    [31m✗[39m cmdline-tools component is missing.
+      Try installing or updating Android Studio.
+      Alternatively, download the tools from https://developer.android.com/studio#command-line-tools-only and make sure to set the ANDROID_HOME
+      environment variable.
+      See https://developer.android.com/studio/command-line for more details.
+    [31m✗[39m Android license status unknown.
+      Run `flutter doctor --android-licenses` to accept the SDK licenses.
+      See https://flutter.dev/to/windows-android-setup for more details.
+
+[32m[✓][39m Chrome - develop for the web [9,4s]
+    [32m•[39m Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[33m[!][39m Visual Studio - develop Windows apps (Visual Studio Community 2026 18.2.0) [9,4s]
+    [32m•[39m Visual Studio at C:\Program Files\Microsoft Visual Studio\18\Community
+    [32m•[39m Visual Studio Community 2026 version 18.2.11408.102
+    [31m✗[39m Visual Studio is missing necessary components. Please re-run the Visual Studio installer for the "Desktop development with C++" workload,
+      and include these components:
+        MSVC v142 - VS 2019 C++ x64/x86 build tools
+         - If there are multiple build tool versions available, install the latest
+        C++ CMake tools for Windows
+        Windows 10 SDK
+
+[32m[✓][39m Connected device (3 available) [2,4s]
+    [32m•[39m Windows (desktop) • windows • windows-x64    • Microsoft Windows [versÆo 10.0.19045.6466]
+    [32m•[39m Chrome (web)      • chrome  • web-javascript • Google Chrome 143.0.7499.193
+    [32m•[39m Edge (web)        • edge    • web-javascript • Microsoft Edge 143.0.3650.139
+
+[32m[✓][39m Network resources [2,3s]
+    [32m•[39m All expected network resources are available.
+
+[33m![39m Doctor found issues in 2 categories.
+```

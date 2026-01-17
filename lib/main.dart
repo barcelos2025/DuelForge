@@ -3,14 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'app/di/app_di.dart';
 import 'app/navigation/rotas.dart';
+import 'features/cards/services/card_progression_service.dart';
 import 'features/profile/services/profile_service.dart';
 import 'core/assets/asset_registry.dart';
+import 'ui/theme/df_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await AssetRegistry.init();
   final profileService = await ProfileService.init();
+  
+  // Initialize Card Progression
+  await CardProgressionService().init();
   
   runApp(DuelForgeApp(profileService: profileService));
 }
@@ -27,7 +32,7 @@ class DuelForgeApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'DuelForge',
-        theme: ThemeData.dark(useMaterial3: true),
+        theme: DFTheme.darkTheme,
         initialRoute: Rotas.splash,
         routes: Rotas.builders(),
       ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../theme/df_theme.dart';
+import '../theme/duel_colors.dart';
+import '../theme/duel_typography.dart';
+import '../theme/duel_ui_tokens.dart';
 
 class DFTopBar extends StatelessWidget {
   final String playerName;
@@ -115,13 +117,13 @@ class _InteractiveProfileCardState extends State<_InteractiveProfileCard> with S
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: DFTheme.surface.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(30),
+                color: DuelColors.surface.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(DuelUiTokens.radiusFull),
                 border: Border.all(
-                  color: isPressed ? DFTheme.cyan : Colors.white.withOpacity(0.15),
+                  color: isPressed ? DuelColors.primary : Colors.white.withOpacity(0.15),
                   width: 1.5,
                 ),
-                boxShadow: isPressed ? DFTheme.glowCyan : [],
+                boxShadow: isPressed ? DuelUiTokens.glowCyan : [],
               ),
               child: Row(
                 children: [
@@ -135,7 +137,7 @@ class _InteractiveProfileCardState extends State<_InteractiveProfileCard> with S
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: DFTheme.gold, width: 2),
+                            border: Border.all(color: DuelColors.accentGold, width: 2),
                             image: DecorationImage(
                               image: AssetImage(widget.avatarImage ?? 'assets/images/guerreiro ulf lendário.jpeg'),
                               fit: BoxFit.cover,
@@ -148,7 +150,7 @@ class _InteractiveProfileCardState extends State<_InteractiveProfileCard> with S
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: const BoxDecoration(
-                              color: DFTheme.cyan,
+                              color: DuelColors.primary,
                               shape: BoxShape.circle,
                             ),
                             child: Text(
@@ -173,21 +175,21 @@ class _InteractiveProfileCardState extends State<_InteractiveProfileCard> with S
                     children: [
                       Text(
                         widget.playerName,
-                        style: DFTheme.labelBold.copyWith(fontSize: 14),
+                        style: DuelTypography.labelCaps.copyWith(fontSize: 14, color: DuelColors.textPrimary),
                       ),
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          const Icon(Icons.emoji_events, size: 14, color: DFTheme.gold),
+                          const Icon(Icons.emoji_events, size: 14, color: DuelColors.accentGold),
                           const SizedBox(width: 4),
                           Text(
                             '${widget.trophies}',
-                            style: DFTheme.labelBold.copyWith(color: DFTheme.gold),
+                            style: DuelTypography.labelCaps.copyWith(color: DuelColors.accentGold),
                           ),
                           const SizedBox(width: 6),
                           Text(
                             widget.rankLabel,
-                            style: const TextStyle(fontSize: 10, color: Colors.white54),
+                            style: DuelTypography.bodySmall.copyWith(fontSize: 10, color: Colors.white54),
                           ),
                         ],
                       ),
@@ -230,7 +232,7 @@ class _SettingsButtonState extends State<_SettingsButton> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: DFTheme.surface.withOpacity(0.9),
+            color: DuelColors.surface.withOpacity(0.9),
             shape: BoxShape.circle,
             border: Border.all(
               color: Colors.white.withOpacity(0.15),

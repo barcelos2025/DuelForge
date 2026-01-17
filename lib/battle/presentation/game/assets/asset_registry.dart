@@ -72,10 +72,12 @@ class AssetRegistry {
   Future<LoadedAnimation> _getPlaceholder() async {
     if (_placeholderAnimation != null) return _placeholderAnimation!;
 
-    // Create a 32x32 magenta square texture for missing assets
+    // Create a 32x32 transparent square texture for missing assets to avoid pink screen
+    // The pink screen was caused by this placeholder being rendered when assets failed to load.
     final recorder = ui.PictureRecorder();
     final canvas = ui.Canvas(recorder);
-    final paint = ui.Paint()..color = const ui.Color(0xFFFF00FF); // Magenta
+    // final paint = ui.Paint()..color = const ui.Color(0xFFFF00FF); // Magenta (Debug) - CAUSES PINK SCREEN
+    final paint = ui.Paint()..color = const ui.Color(0x00000000); // Transparent (Fix)
     canvas.drawRect(const ui.Rect.fromLTWH(0, 0, 32, 32), paint);
     final picture = recorder.endRecording();
     final image = await picture.toImage(32, 32);

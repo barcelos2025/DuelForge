@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../ui/theme/df_theme.dart';
+import '../../ui/theme/duel_colors.dart';
+import '../../ui/theme/duel_typography.dart';
+import '../../ui/theme/duel_ui_tokens.dart';
 import '../../ui/theme/df_assets.dart';
 
 enum ChestState { locked, unlocking, ready, empty }
@@ -79,10 +81,10 @@ class _ChestSlotCard extends StatelessWidget {
 
   Color get _rarityColor {
     switch (model.rarity) {
-      case ChestRarity.common: return Colors.blueGrey;
-      case ChestRarity.rare: return DFTheme.gold;
-      case ChestRarity.epic: return DFTheme.purple;
-      case ChestRarity.legendary: return DFTheme.cyan;
+      case ChestRarity.common: return DuelColors.rarityCommon;
+      case ChestRarity.rare: return DuelColors.rarityRare;
+      case ChestRarity.epic: return DuelColors.rarityEpic;
+      case ChestRarity.legendary: return DuelColors.rarityLegendary;
     }
   }
 
@@ -105,7 +107,7 @@ class _ChestSlotCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'Slot Vazio',
-                style: DFTheme.labelBold.copyWith(color: Colors.white24, fontSize: 10),
+                style: DuelTypography.labelCaps.copyWith(color: Colors.white24, fontSize: 10),
               ),
             ],
           ),
@@ -122,14 +124,14 @@ class _ChestSlotCard extends StatelessWidget {
       child: Container(
         width: 100,
         decoration: BoxDecoration(
-          color: DFTheme.surface,
+          color: DuelColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isReady ? color : Colors.white.withOpacity( 0.1),
             width: isReady ? 2 : 1,
           ),
           boxShadow: isReady 
-              ? [BoxShadow(color: color.withOpacity( 0.4), blurRadius: 12, spreadRadius: 1)] 
+              ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 12, spreadRadius: 1)] 
               : [],
         ),
         child: Stack(
@@ -172,7 +174,7 @@ class _ChestSlotCard extends StatelessWidget {
                                 value: model.progress,
                                 strokeWidth: 3,
                                 backgroundColor: Colors.black26,
-                                valueColor: AlwaysStoppedAnimation<Color>(DFTheme.cyan),
+                                valueColor: AlwaysStoppedAnimation<Color>(DuelColors.primary),
                               ),
                             ),
                           Image.asset(
@@ -206,7 +208,7 @@ class _ChestSlotCard extends StatelessWidget {
                       children: [
                         Text(
                           _formatDuration(model.remainingTime!),
-                          style: DFTheme.labelBold.copyWith(color: DFTheme.cyan, fontSize: 12),
+                          style: DuelTypography.labelCaps.copyWith(color: DuelColors.primary, fontSize: 12),
                         ),
                         const SizedBox(height: 2),
                         const Text('Desbloqueando', style: TextStyle(fontSize: 9, color: Colors.white54)),

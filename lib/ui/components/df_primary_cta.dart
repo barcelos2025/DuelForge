@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../ui/theme/df_theme.dart';
+import '../../ui/theme/duel_colors.dart';
+import '../../ui/theme/duel_typography.dart';
+import '../../ui/theme/duel_ui_tokens.dart';
 
 class DFPrimaryCTA extends StatefulWidget {
   final String title;
@@ -89,12 +91,12 @@ class _DFPrimaryCTAState extends State<DFPrimaryCTA> with TickerProviderStateMix
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 gradient: widget.enabled
-                    ? DFTheme.gradientGold
+                    ? const LinearGradient(colors: [DuelColors.accentGold, Color(0xFFFFA000)])
                     : const LinearGradient(colors: [Color(0xFF424242), Color(0xFF212121)]),
                 boxShadow: widget.enabled
                     ? [
                         BoxShadow(
-                          color: DFTheme.gold.withOpacity( glowOpacity),
+                          color: DuelColors.accentGold.withOpacity( glowOpacity),
                           blurRadius: 20,
                           spreadRadius: 2,
                           offset: const Offset(0, 4),
@@ -155,7 +157,7 @@ class _DFPrimaryCTAState extends State<DFPrimaryCTA> with TickerProviderStateMix
                           children: [
                             Text(
                               widget.title.toUpperCase(),
-                              style: DFTheme.titleLarge.copyWith(
+                              style: DuelTypography.displayLarge.copyWith(
                                 fontSize: 28,
                                 color: widget.enabled ? const Color(0xFF4A3000) : Colors.white38,
                                 shadows: [], // Remove sombra padrão para ficar flat no botão

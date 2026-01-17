@@ -82,9 +82,9 @@ class MatchState {
     }
 
     // Player Towers (Bottom)
-    towers.add(BattleTower(id: 'p_king', side: BattleSide.player, type: TowerType.king, position: toWorld(0.5, 0.9)));
-    towers.add(BattleTower(id: 'p_left', side: BattleSide.player, type: TowerType.princess, position: toWorld(0.2, 0.75)));
-    towers.add(BattleTower(id: 'p_right', side: BattleSide.player, type: TowerType.princess, position: toWorld(0.8, 0.75)));
+    towers.add(BattleTower(id: 'p_king', side: BattleSide.player, type: TowerType.king, position: toWorld(0.5, 0.82)));
+    towers.add(BattleTower(id: 'p_left', side: BattleSide.player, type: TowerType.princess, position: toWorld(0.2, 0.68)));
+    towers.add(BattleTower(id: 'p_right', side: BattleSide.player, type: TowerType.princess, position: toWorld(0.8, 0.68)));
 
     // Enemy Towers (Top)
     towers.add(BattleTower(id: 'e_king', side: BattleSide.enemy, type: TowerType.king, position: toWorld(0.5, 0.1)));

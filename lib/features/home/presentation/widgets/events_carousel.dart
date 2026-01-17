@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../ui/theme/df_theme.dart';
+import '../../../../ui/theme/duel_colors.dart';
+import '../../../../ui/theme/duel_typography.dart';
+import '../../../../ui/theme/duel_ui_tokens.dart';
 
 class EventsCarousel extends StatelessWidget {
   const EventsCarousel({super.key});
@@ -13,7 +15,7 @@ class EventsCarousel extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Text(
             'EVENTOS & NOVIDADES',
-            style: DFTheme.labelBold.copyWith(color: Colors.white54),
+            style: DuelTypography.labelCaps.copyWith(color: Colors.white54),
           ),
         ),
         SizedBox(
@@ -33,14 +35,14 @@ class EventsCarousel extends StatelessWidget {
               _buildEventCard(
                 title: 'Corrida do Ouro',
                 reward: '2x Ouro',
-                color: DFTheme.gold,
+                color: DuelColors.accentGold,
                 icon: Icons.monetization_on,
               ),
               const SizedBox(width: 12),
               _buildEventCard(
                 title: 'Torneio Rúnico',
                 reward: 'Skin Exclusiva',
-                color: DFTheme.cyan,
+                color: DuelColors.primary,
                 icon: Icons.auto_awesome,
               ),
             ],
@@ -59,16 +61,10 @@ class EventsCarousel extends StatelessWidget {
     return Container(
       width: 240,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: DFTheme.surface,
+        borderRadius: BorderRadius.circular(DuelUiTokens.radiusLarge),
+        color: DuelColors.surface,
         border: Border.all(color: color.withOpacity(0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: DuelUiTokens.shadowMedium,
       ),
       child: Stack(
         children: [
@@ -106,10 +102,9 @@ class EventsCarousel extends StatelessWidget {
                       ),
                       child: Text(
                         'ATIVO',
-                        style: TextStyle(
+                        style: DuelTypography.labelCaps.copyWith(
                           color: color,
                           fontSize: 10,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -118,18 +113,18 @@ class EventsCarousel extends StatelessWidget {
                 const Spacer(),
                 Text(
                   title,
-                  style: DFTheme.titleMedium.copyWith(fontSize: 16),
+                  style: DuelTypography.displaySmall.copyWith(fontSize: 16),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Text(
+                    Text(
                       'Recompensa: ',
-                      style: TextStyle(color: Colors.white54, fontSize: 12),
+                      style: DuelTypography.bodySmall.copyWith(color: Colors.white54, fontSize: 12),
                     ),
                     Text(
                       reward,
-                      style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+                      style: DuelTypography.labelCaps.copyWith(color: color, fontSize: 12),
                     ),
                   ],
                 ),
