@@ -56,7 +56,7 @@ class CardCollectionGrid extends StatelessWidget {
                   ),
                 )
               : GridView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 32), // Extra top padding for glow
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
               childAspectRatio: 0.75,

@@ -40,6 +40,9 @@ class MatchState {
   ReplayData? replayData;
   List<ReplayEvent> recordedEvents = [];
   bool isReplay = false;
+  
+  // Levels
+  Map<String, int> playerCardLevels = {};
 
   // Events
   void Function(BattleTower)? onTowerDestroyed;
@@ -82,23 +85,17 @@ class MatchState {
     }
 
     // Player Towers (Bottom)
-    towers.add(BattleTower(id: 'p_king', side: BattleSide.player, type: TowerType.king, position: toWorld(0.5, 0.82)));
-    towers.add(BattleTower(id: 'p_left', side: BattleSide.player, type: TowerType.princess, position: toWorld(0.2, 0.68)));
-    towers.add(BattleTower(id: 'p_right', side: BattleSide.player, type: TowerType.princess, position: toWorld(0.8, 0.68)));
+    // Adjusted: Moved 15% DOWN (Y + 0.15) from previous position
+    towers.add(BattleTower(id: 'p_king', side: BattleSide.player, type: TowerType.king, position: toWorld(0.43, 0.80)));
+    towers.add(BattleTower(id: 'p_left', side: BattleSide.player, type: TowerType.princess, position: toWorld(0.11, 0.65)));
+    towers.add(BattleTower(id: 'p_right', side: BattleSide.player, type: TowerType.princess, position: toWorld(0.75, 0.65)));
 
     // Enemy Towers (Top)
-    towers.add(BattleTower(id: 'e_king', side: BattleSide.enemy, type: TowerType.king, position: toWorld(0.5, 0.1)));
-    towers.add(BattleTower(id: 'e_left', side: BattleSide.enemy, type: TowerType.princess, position: toWorld(0.8, 0.25))); // Inverted X for enemy perspective? No, 0.8 is Right side of screen.
-    // Enemy Left Tower (from Player view) is at 0.2?
-    // If Enemy is at Top, their "Left" is Player's "Right".
-    // Let's stick to Screen Coordinates:
-    // 0.2 is Left side of screen.
-    // 0.8 is Right side of screen.
-    // Enemy King at 0.1 Y.
-    // Enemy Towers at 0.25 Y.
-    // So 'e_left' at 0.2, 0.25. 'e_right' at 0.8, 0.25.
-    towers.add(BattleTower(id: 'e_left', side: BattleSide.enemy, type: TowerType.princess, position: toWorld(0.2, 0.25)));
-    towers.add(BattleTower(id: 'e_right', side: BattleSide.enemy, type: TowerType.princess, position: toWorld(0.8, 0.25)));
+    // Adjusted: Moved 20% UP (Y - 0.20) and 5% LEFT (X - 0.05)
+    // Clamped Y to 0.01 minimum to prevent going completely off-screen
+    towers.add(BattleTower(id: 'e_king', side: BattleSide.enemy, type: TowerType.king, position: toWorld(0.43, 0.01))); 
+    towers.add(BattleTower(id: 'e_left', side: BattleSide.enemy, type: TowerType.princess, position: toWorld(0.11, 0.05)));
+    towers.add(BattleTower(id: 'e_right', side: BattleSide.enemy, type: TowerType.princess, position: toWorld(0.75, 0.05)));
   }
 
   void checkEndCondition() {

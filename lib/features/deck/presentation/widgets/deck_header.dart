@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/number_formatter.dart';
 import '../../../../ui/theme/duel_colors.dart';
 import '../../../../ui/theme/duel_typography.dart';
 import '../../../../ui/theme/duel_ui_tokens.dart';
@@ -23,7 +24,7 @@ class DeckHeader extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('SEU DECK DE BATALHA', style: DuelTypography.displaySmall),
+              Text('SEU DECK DE BATALHA', style: DuelTypography.displaySmall),
               const SizedBox(height: 4),
               Text(
                 '$cardCount/8 Cartas Selecionadas',
@@ -43,7 +44,7 @@ class DeckHeader extends StatelessWidget {
                 const Icon(Icons.water_drop, color: DuelColors.secondary, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  averageCost.toStringAsFixed(1),
+                  NumberFormatter.formatDecimal(averageCost, 1),
                   style: DuelTypography.hudNumber.copyWith(color: DuelColors.secondary, fontSize: 16),
                 ),
               ],

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/number_formatter.dart';
 import '../theme/duel_colors.dart';
 import '../theme/duel_typography.dart';
 import '../theme/duel_ui_tokens.dart';
+import '../../core/audio/audio_service.dart';
 
 class DFTopBar extends StatelessWidget {
   final String playerName;
@@ -44,6 +46,11 @@ class DFTopBar extends StatelessWidget {
             ),
             
             const SizedBox(width: 12),
+
+            // Mute Button
+            _MuteButton(),
+
+            const SizedBox(width: 8),
 
             // Settings Button
             _SettingsButton(onTap: onTapSettings),
@@ -129,24 +136,52 @@ class _InteractiveProfileCardState extends State<_InteractiveProfileCard> with S
                 children: [
                   // Avatar + Level Badge
                   SizedBox(
-                    width: 48,
-                    height: 48,
+                    width: 66, // Increased to fit larger frame
+                    height: 66,
                     child: Stack(
+                      alignment: Alignment.center,
                       clipBehavior: Clip.none,
                       children: [
+                        // Glow
                         Container(
+                          width: 43,
+                          height: 43,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: DuelColors.accentGold, width: 2),
-                            image: DecorationImage(
-                              image: AssetImage(widget.avatarImage ?? 'assets/images/guerreiro ulf lendário.jpeg'),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.cyanAccent.withOpacity(0.5),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Avatar Image
+                        SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: ClipOval(
+                            child: Image.asset(
+                              widget.avatarImage ?? 'assets/images/guerreiro ulf lendário.jpeg',
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(Icons.person, size: 24, color: Colors.white);
+                              },
                             ),
                           ),
                         ),
+                        // Frame Overlay
+                        Image.asset(
+                          'assets/ui/avatar_frame.png',
+                          width: 64,
+                          height: 64,
+                          fit: BoxFit.contain,
+                        ),
+                        // Level Badge
                         Positioned(
-                          bottom: -2,
-                          right: -2,
+                          bottom: 0,
+                          right: 0,
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: const BoxDecoration(
@@ -154,7 +189,7 @@ class _InteractiveProfileCardState extends State<_InteractiveProfileCard> with S
                               shape: BoxShape.circle,
                             ),
                             child: Text(
-                              '${widget.playerLevel}',
+                              NumberFormatter.format(widget.playerLevel),
                               style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
@@ -183,7 +218,7 @@ class _InteractiveProfileCardState extends State<_InteractiveProfileCard> with S
                           const Icon(Icons.emoji_events, size: 14, color: DuelColors.accentGold),
                           const SizedBox(width: 4),
                           Text(
-                            '${widget.trophies}',
+                            NumberFormatter.format(widget.trophies),
                             style: DuelTypography.labelCaps.copyWith(color: DuelColors.accentGold),
                           ),
                           const SizedBox(width: 6),
@@ -242,6 +277,56 @@ class _SettingsButtonState extends State<_SettingsButton> {
           child: const Icon(Icons.settings, color: Colors.white70, size: 24),
         ),
       ),
+    );
+  }
+}
+
+class _MuteButton extends StatefulWidget {
+  const _MuteButton();
+
+  @override
+  State<_MuteButton> createState() => _MuteButtonState();
+}
+
+class _MuteButtonState extends State<_MuteButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: AudioService(),
+      builder: (context, child) {
+        final isMuted = AudioService().isMuted;
+        return GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            AudioService().toggleMute();
+          },
+          onTapCancel: () => setState(() => _isPressed = false),
+          child: AnimatedScale(
+            scale: _isPressed ? 0.9 : 1.0,
+            duration: const Duration(milliseconds: 100),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: DuelColors.surface.withOpacity(0.9),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isMuted ? Colors.redAccent.withOpacity(0.5) : Colors.white.withOpacity(0.15),
+                  width: 1.5,
+                ),
+              ),
+              child: Icon(
+                isMuted ? Icons.volume_off : Icons.volume_up,
+                color: isMuted ? Colors.redAccent : Colors.white70,
+                size: 24,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

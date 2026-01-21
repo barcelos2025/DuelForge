@@ -3,10 +3,14 @@ import 'dart:math';
 import 'package:flame/components.dart' hide Timer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+// Imports de Domínio e Dados
 import '../../../battle/data/card_catalog.dart';
-import '../../../battle/data/balance_rules.dart';
 import '../../../battle/domain/config/battle_field_config.dart';
 import '../../../battle/domain/controllers/bot_controller.dart';
+import '../../../battle/domain/ai/ai_core.dart';
+import '../../../battle/domain/difficulty/difficulty_manager.dart';
+import '../../../battle/domain/difficulty/session_tracker.dart';
 import '../../../battle/domain/entities/match_state.dart';
 import '../../../battle/domain/entities/battle_objects.dart';
 import '../../../battle/domain/events/battle_events.dart';
@@ -22,41 +26,58 @@ import '../models/estado_batalha.dart';
 import '../screens/match_summary_screen.dart';
 import 'cards_repository.dart';
 import '../domain/models/arena_definition.dart';
+import '../../../core/audio/audio_service.dart';
+import '../../profile/services/profile_service.dart';
 
 class BattleViewModel extends ChangeNotifier {
   final CardsRepository repositorio;
-  BuildContext? _context; // Store context for navigation
+  final ProfileService profileService;
+  BuildContext? _context; // Contexto para navegação
 
+  // Estado da Partida (Lógica Core)
   late MatchState matchState;
   late MatchLoop matchLoop;
   BotController? botController;
   Timer? _timer;
+  bool _isInitialized = false;
 
-  // Event Stream
+  // Stream de Eventos (Desacoplamento UI)
   final _eventController = StreamController<BattleEvent>.broadcast();
   Stream<BattleEvent> get eventStream => _eventController.stream;
 
-  // UI State Wrappers
+  // Estado de UI (Wrappers)
   Carta? cartaSelecionada;
   int tempoRestante = 180;
   
-  // Arena Logic
-  int _playerTrophies = 0; // Should come from ProfileService
-  ArenaDefinition get currentArena => ArenaCatalog.getArenaForTrophies(_playerTrophies);
+  // Lógica de Arena
+  int get _trofeusJogador => profileService.trophies;
+  ArenaDefinition get arenaAtual => ArenaCatalog.getArenaForTrophies(_trofeusJogador);
+  // Alias para compatibilidade com UI legada
+  ArenaDefinition get currentArena => arenaAtual;
   
-  // Backward Compatibility for UI
+  // Compatibilidade com UI Legada
   late EstadoBatalha estado; 
 
-  BattleViewModel({required this.repositorio}) {
-    estado = EstadoBatalha(runaAtual: 5, runaMax: 10, regenPorSegundo: 0.83);
+  BattleViewModel({required this.repositorio, required this.profileService}) {
+    // Inicializa estado visual padrão
+    estado = EstadoBatalha(runaAtual: 10, runaMax: 10, regenPorSegundo: 0.83);
   }
 
   void setContext(BuildContext context) {
     _context = context;
   }
 
+  /// Inicializa a batalha, garantindo que todos os recursos necessários estejam carregados.
   Future<void> inicializar({String? replayId}) async {
-    // 0. Determine Seed & Config
+    debugPrint('⚔️ BattleViewModel: Inicializando batalha...');
+
+    // 1. Garantir carregamento do Repositório de Cartas (CRÍTICO)
+    if (!repositorio.carregado) {
+      debugPrint('⚠️ CardsRepository não carregado. Forçando carregamento...');
+      await repositorio.carregar();
+    }
+
+    // 2. Determinar Seed e Configuração
     int seed;
     ReplayData? replayData;
     
@@ -68,152 +89,220 @@ class BattleViewModel extends ChangeNotifier {
     }
 
     final rng = Random(seed);
-    final botProfile = BotProfile.values[rng.nextInt(BotProfile.values.length)];
-    final botDifficulty = BotDifficulty.values[rng.nextInt(BotDifficulty.values.length)];
+    final perfilBot = BotProfile.values[rng.nextInt(BotProfile.values.length)];
     
-    final botConfig = BotConfig(
-      profile: botProfile,
-      difficulty: botDifficulty,
-      seed: seed,
+    // Registrar início de partida na sessão
+    SessionTracker().registerMatchStart();
+
+    // Gerar ID da partida antecipadamente
+    final matchId = 'local_match_${DateTime.now().millisecondsSinceEpoch}';
+
+    // Configuração Dinâmica de IA
+    final trofeus = profileService.trophies;
+    final winRate = profileService.winRate;
+    final nivelMedio = profileService.averageCardLevel;
+    final consecutiveLosses = profileService.consecutiveLosses;
+
+    final configBot = DifficultyManager().calculateMatchConfig(
+      playerTrophies: trofeus,
+      playerWinRate: winRate,
+      playerAvgCardLevel: nivelMedio,
+      consecutiveLosses: consecutiveLosses,
+      consecutiveWins: 0,
+      matchId: matchId,
     );
 
-    print('Match Init: Seed=$seed, Profile=${botProfile.name}, Diff=${botDifficulty.name}');
+    debugPrint('🎲 Match Init: Seed=$seed, Bot=${configBot.id}, Policy=${configBot.policy.name}, Knobs=${configBot.knobs}');
 
-    // 1. Setup Services
-    final playerDeckIds = DeckBuilder.buildDefaultDeck();
-    final playerDeck = DeckService(playerDeckIds);
-    final playerPower = PowerService(initialPower: 5.0);
+    // 3. Configurar Serviços de Domínio
+    // Tenta carregar o deck ativo do perfil. Se falhar, usa o default.
+    List<String> idsDeckJogador;
+    try {
+      final deckAtivo = profileService.profile.decks.firstWhere((d) => d.isActive);
+      idsDeckJogador = deckAtivo.cardIds;
+      debugPrint('🎴 Deck carregado do perfil: ${deckAtivo.name} (${idsDeckJogador.length} cartas)');
+      debugPrint('   IDs: $idsDeckJogador');
+    } catch (e) {
+      debugPrint('⚠️ Nenhum deck ativo encontrado. Usando deck padrão.');
+      idsDeckJogador = DeckBuilder.buildDefaultDeck();
+      debugPrint('   IDs padrão: $idsDeckJogador');
+    }
 
-    final enemyDeckIds = BotDecks.getDeck(botProfile);
-    final enemyDeck = DeckService(enemyDeckIds);
-    final enemyPower = PowerService(initialPower: 5.0);
+    final deckJogador = DeckService(idsDeckJogador);
+    final poderJogador = PowerService(initialPower: 10.0);
+
+    final idsDeckInimigo = BotDecks.getDeck(perfilBot);
+    final deckInimigo = DeckService(idsDeckInimigo);
+    final poderInimigo = PowerService(initialPower: 10.0);
     
-    // 2. Setup Match State
+    // 4. Configurar Estado da Partida (MatchState)
     matchState = MatchState(
-      matchId: 'local_match_${DateTime.now().millisecondsSinceEpoch}',
-      playerPower: playerPower,
-      enemyPower: enemyPower,
-      playerDeck: playerDeck,
-      enemyDeck: enemyDeck,
+      matchId: matchId,
+      playerPower: poderJogador,
+      enemyPower: poderInimigo,
+      playerDeck: deckJogador,
+      enemyDeck: deckInimigo,
     );
     matchState.randomSeed = seed;
 
-    // Replay Setup
+    // Preencher níveis das cartas do jogador
+    for (final cardId in idsDeckJogador) {
+      matchState.playerCardLevels[cardId] = profileService.getCardLevel(cardId);
+    }
+
+    // Configuração de Replay
     if (replayData != null) {
       matchState.isReplay = true;
       matchState.replayData = replayData;
     }
     
-    // 3. Setup Logic Engine
-    botController = BotController(matchState, botConfig);
+    // 5. Configurar Engine Lógica (Loop)
+    botController = BotController(matchState, configBot, seed: seed);
     matchLoop = MatchLoop(matchState, botController: botController);
     
-    matchState.onMatchEnd = (winner) async {
+    // Callback de Fim de Partida
+    matchState.onMatchEnd = (vencedor) async {
       if (!matchState.isReplay) {
-        // Save telemetry
+        // Lógica de Áudio
+        final audio = AudioService();
+        await audio.fadeOutMusic(duration: const Duration(milliseconds: 500));
+        
+        if (vencedor == BattleSide.player) {
+          audio.playSfx('victory_stinger.mp3');
+        } else {
+          audio.playSfx('defeat_stinger.mp3');
+        }
+
+        // Salvar Telemetria
+        matchState.telemetry.setDuration(matchState.timeElapsed);
+        // Salvar Telemetria
         matchState.telemetry.setDuration(matchState.timeElapsed);
         await TelemetryService.saveTelemetry(matchState.telemetry);
         
-        // Save replay
-        await saveReplay();
+        // Reportar Resultado para ProfileService (Tilt Assist)
+        profileService.reportMatchResult(vencedor == BattleSide.player);
         
-        // Show summary
+        // Salvar Replay
+        await _salvarReplay();
+        
+        // Navegar para Resumo
         if (_context != null && _context!.mounted) {
           Navigator.of(_context!).push(
             MaterialPageRoute(
               builder: (_) => MatchSummaryScreen(
                 telemetry: matchState.telemetry,
-                victory: winner == BattleSide.player,
+                victory: vencedor == BattleSide.player,
               ),
             ),
           );
         }
       }
+      
+      // Notificar UI
+      _eventController.add(MatchEndEvent(
+        winner: vencedor.name,
+      ));
     };
 
     matchState.startMatch();
 
-    // 4. Start UI Sync Loop
+    // 6. Iniciar Loop de Sincronização UI (10fps é suficiente para barras, o jogo roda no Flame)
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(milliseconds: 100), (_) {
-      _syncUI();
+      _sincronizarUI();
     });
 
+    _isInitialized = true;
     notifyListeners();
+    debugPrint('✅ Batalha inicializada com sucesso.');
   }
 
-  Future<void> saveReplay() async {
+  Future<void> _salvarReplay() async {
     final data = ReplayData(
       seed: matchState.randomSeed,
       events: matchState.recordedEvents,
     );
     await ReplayService.saveReplay(data, matchState.matchId);
-    print('Replay saved: ${matchState.matchId}');
+    debugPrint('💾 Replay salvo: ${matchState.matchId}');
   }
 
-  void _syncUI() {
+  void _sincronizarUI() {
+    if (!_isInitialized) return;
     if (matchState.phase != MatchPhase.active && matchState.phase != MatchPhase.overtime) return;
 
-    // Sync UI State
+    // Sincroniza estado reativo para UI Flutter
+    final oldPower = estado.runaAtual;
     estado.runaAtual = matchState.playerPower.currentPower;
     tempoRestante = matchState.remainingTime.ceil();
+    
+    if ((oldPower - estado.runaAtual).abs() > 0.1) {
+       debugPrint('⏱️ UI Sync: Power Changed: ${oldPower.toStringAsFixed(2)} -> ${estado.runaAtual.toStringAsFixed(2)}');
+    }
 
     notifyListeners();
   }
 
   bool jogarCarta(Carta cartaSelecionada, {Vector2? position}) {
+    if (!_isInitialized) return false;
     final carta = cartaSelecionada;
     
-    // Determine Position (Default if null)
-    Vector2 spawnPos = position ?? Vector2(0.5, 0.8);
+    // Determinar Posição (Default se nulo)
+    Vector2 posSpawn = position ?? Vector2(0.5, 0.8);
     if (position == null && carta.tipo == TipoCarta.feitico) {
-      spawnPos = Vector2(0.5, 0.5);
+      posSpawn = Vector2(0.5, 0.5); // Feitiços sem alvo vão no centro por padrão
     }
 
-    // Convert normalized to world
-    double wx = (spawnPos.x - 0.5) * BattleFieldConfig.width;
-    double wy = (spawnPos.y - 0.5) * BattleFieldConfig.height;
-    Vector2 worldPos = Vector2(wx, wy);
+    // Converter normalizado (0..1) para mundo
+    double wx = (posSpawn.x - 0.5) * BattleFieldConfig.width;
+    double wy = (posSpawn.y - 0.5) * BattleFieldConfig.height;
+    Vector2 posMundo = Vector2(wx, wy);
 
-    // Validate Deploy
-    // Spells can be deployed anywhere? Usually yes.
-    // Units must be in valid zone.
+    // Validar Deploy
     if (carta.tipo != TipoCarta.feitico) {
-      if (!BattleFieldConfig.isValidDeploy(worldPos, true)) {
-        // Invalid position
-        return false;
+      if (!BattleFieldConfig.isValidDeploy(posMundo, true)) {
+        return false; // Posição inválida
       }
-      // Snap to Lane
-      worldPos.x = BattleFieldConfig.snapToLane(worldPos.x);
+      // Snap to Lane (Alinhar com rotas)
+      posMundo.x = BattleFieldConfig.snapToLane(posMundo.x);
     }
 
+    // Verificar Custo
     if (!matchState.playerPower.consume(carta.custo)) {
-      return false;
+      return false; // Sem elixir suficiente
     }
 
+    // Executar Jogada
     matchState.playerDeck.play(carta.id);
     
+    // Enfileirar Comando (Determinismo)
     matchLoop.enqueueCommand(PlayCardCommand(
       timestamp: matchState.timeElapsed,
       side: BattleSide.player,
       cardId: carta.id,
-      x: worldPos.x,
-      y: worldPos.y,
+      x: posMundo.x,
+      y: posMundo.y,
     ));
+
+    // SFX
+    AudioService().playDeploySfx();
 
     this.cartaSelecionada = null;
     notifyListeners();
     return true;
   }
-  // Helpers for UI
+
+  // Getters para UI
   List<Carta> get mao {
-    return matchState.playerDeck.hand.map((id) => hydrateCard(id)).toList();
+    if (!_isInitialized) return [];
+    // Hidrata os IDs do deck usando o repositório oficial
+    return matchState.playerDeck.hand.map((id) => _hidratarCarta(id)).toList();
   }
 
   Carta? get proximaCarta {
+    if (!_isInitialized) return null;
     final nextId = matchState.playerDeck.nextCard;
     if (nextId == null) return null;
-    return hydrateCard(nextId);
+    return _hidratarCarta(nextId);
   }
 
   void selecionarCarta(Carta? carta) {
@@ -222,32 +311,63 @@ class BattleViewModel extends ChangeNotifier {
   }
 
   bool podeJogar(Carta carta) {
+    if (!_isInitialized) return false;
     return matchState.playerPower.canConsume(carta.custo);
   }
 
-  Carta hydrateCard(String id) {
-    // Find in catalog or repo
-    // Assuming catalog is available
-    final def = cardCatalog.firstWhere((c) => c.cardId == id, 
-      orElse: () => CardDefinition(cardId: id, cost: 0, type: CardType.tropa, archetype: 'unknown', function: 'unknown'));
-    
-    // Map Domain Type to UI Type
-    TipoCarta uiType;
-    switch (def.type) {
-      case CardType.tropa: uiType = TipoCarta.tropa; break;
-      case CardType.construcao: uiType = TipoCarta.construcao; break;
-      case CardType.feitico: uiType = TipoCarta.feitico; break;
+  /// Converte um ID de carta em um objeto Carta completo para a UI.
+  /// Usa o CardsRepository como fonte da verdade.
+  Carta _hidratarCarta(String id) {
+    // 1. Tentar buscar no Repositório (Dados do Banco/JSON)
+    if (repositorio.carregado) {
+      try {
+        debugPrint('🔍 Hidratando carta: "$id"');
+        return repositorio.porId(id);
+      } catch (e) {
+        debugPrint('⚠️ Erro ao hidratar carta "$id" do repositório: $e');
+      }
     }
+
+    // 2. Fallback de Emergência (CardCatalog legado)
+    // Isso só deve acontecer se o ID não existir no repositório (ex: ID antigo 'df_card_...')
+    debugPrint('⚠️ Usando fallback legado para carta: $id');
+    
+    final def = cardCatalog.firstWhere(
+      (c) => c.cardId == id, 
+      orElse: () => CardDefinition(
+        cardId: id, 
+        cost: 0, 
+        type: CardType.tropa, 
+        archetype: 'unknown', 
+        function: 'unknown',
+        tags: [],
+      )
+    );
+    
+    TipoCarta tipoUI;
+    switch (def.type) {
+      case CardType.tropa: tipoUI = TipoCarta.tropa; break;
+      case CardType.construcao: tipoUI = TipoCarta.construcao; break;
+      case CardType.feitico: tipoUI = TipoCarta.feitico; break;
+    }
+
+    String raridade = 'comum';
+    if (def.tags.contains('legendary')) raridade = 'lendaria';
+    else if (def.tags.contains('epic')) raridade = 'epica';
+    else if (def.tags.contains('rare')) raridade = 'rara';
 
     return Carta(
       id: def.cardId,
-      nome: def.cardId.split('_').skip(2).join(' ').replaceAll('.jpg', '').replaceAll('.png', ''), // Simple name extraction
+      // Tenta limpar o nome se for um filename
+      nome: def.cardId.contains('_') 
+          ? def.cardId.split('_').skip(2).join(' ').replaceAll('.jpg', '').replaceAll('.png', '')
+          : def.cardId,
       custo: def.cost,
-      tipo: uiType,
-      imagePath: 'assets/cards/${def.cardId}', // Adjust path as needed
+      tipo: tipoUI,
+      imagePath: 'assets/cards/${def.cardId}',
       descricao: def.function,
-      raridade: def.tags.contains('legendary') ? 'lendaria' : 'comum',
-      poder: 1,
+      raridade: raridade,
+      poder: profileService.getCardLevel(def.cardId),
     );
   }
 }

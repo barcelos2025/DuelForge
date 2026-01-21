@@ -98,8 +98,8 @@ class MatchLoop {
       state.enemyPower.setOvertime(true);
     }
 
-    state.playerPower.tick(dt);
-    state.enemyPower.tick(dt);
+    state.playerPower.tick(dt, state.timeElapsed, state.matchTimeTotal);
+    state.enemyPower.tick(dt, state.timeElapsed, state.matchTimeTotal);
   }
 
   void _tickUnits(double dt) {
@@ -308,7 +308,14 @@ class MatchLoop {
       ));
     }
 
-    final stats = BalanceRules.computeFinalStats(cardId, 1);
+    int level = 1;
+    if (side == BattleSide.enemy && botController != null) {
+       level = botController!.config.enemyCardLevel;
+    } else if (side == BattleSide.player) {
+       level = state.playerCardLevels[cardId] ?? 1;
+    }
+
+    final stats = BalanceRules.computeFinalStats(cardId, level);
     final def = cardCatalog.firstWhere((c) => c.cardId == cardId, orElse: () => CardDefinition(cardId: cardId, cost: 0, type: CardType.tropa, archetype: 'unknown', function: 'unknown'));
     
     if (def.type == CardType.feitico) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../ui/theme/df_theme.dart';
+import '../../core/utils/number_formatter.dart';
 
 class DFResourcePills extends StatelessWidget {
   final List<ResourceItem> items;
@@ -111,7 +112,7 @@ class _ResourcePillState extends State<_ResourcePill> with SingleTickerProviderS
                 return Transform.scale(
                   scale: _scaleAnim.value,
                   child: Text(
-                    '${widget.item.value}',
+                    NumberFormatter.format(widget.item.value),
                     style: DFTheme.labelBold.copyWith(color: Colors.white),
                   ),
                 );

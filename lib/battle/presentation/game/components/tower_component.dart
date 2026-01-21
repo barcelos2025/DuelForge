@@ -8,6 +8,7 @@ import '../../../../core/assets/asset_registry.dart';
 class TowerComponent extends PositionComponent with HasGameRef {
   final BattleTower tower;
   Sprite? _sprite;
+  int _currentPhase = 1;
 
   TowerComponent({required this.tower}) {
     size = Vector2(3, 3); // 3x3 tiles
@@ -23,18 +24,58 @@ class TowerComponent extends PositionComponent with HasGameRef {
       width: size.x,
     ));
 
+    await _loadTowerSprite();
+  }
+
+  Future<void> _loadTowerSprite() async {
     try {
-      // Try loading specific tower assets if they exist
-      // For now, we might not have them, so this will likely fail and use fallback
-      final assetName = tower.type == TowerType.king 
-          ? (tower.side == BattleSide.player ? 'king_tower_blue.png' : 'king_tower_red.png')
-          : (tower.side == BattleSide.player ? 'princess_tower_blue.png' : 'princess_tower_red.png');
-      
-      // We don't have a specific path in registry for towers yet, assume root or cards
-      // Let's try loading from images directly
+      final phase = _getTowerPhase();
+      final assetName = _getTowerAssetName(phase);
       _sprite = await gameRef.loadSprite(assetName);
-    } catch (_) {
-      // Fallback to shapes
+      _currentPhase = phase;
+    } catch (e) {
+      // Fallback to shapes if sprite loading fails
+      _sprite = null;
+    }
+  }
+
+  int _getTowerPhase() {
+    final hpPercent = (tower.hp / tower.maxHp * 100).clamp(0, 100);
+    
+    if (hpPercent > 80) return 1;      // 100% - 81%: Intact
+    if (hpPercent > 60) return 2;      // 80% - 61%: Minor damage
+    if (hpPercent > 40) return 3;      // 60% - 41%: Medium damage
+    if (hpPercent > 20) return 4;      // 40% - 21%: Advanced damage
+    if (hpPercent > 0) return 5;       // 20% - 1%: Almost destroyed
+    return 6;                          // 0%: Destroyed/ruins
+  }
+
+  String _getTowerAssetName(int phase) {
+    // For player's king tower (central tower at bottom)
+    if (tower.type == TowerType.king && tower.side == BattleSide.player) {
+      return 'towers/tower_player_0$phase.png';
+    }
+    
+    // For enemy towers or princess towers, use existing logic
+    // (You can expand this later with enemy tower phases)
+    if (tower.side == BattleSide.enemy) {
+      return tower.type == TowerType.king 
+          ? 'king_tower_red.png' 
+          : 'princess_tower_red.png';
+    }
+    
+    // Player princess towers (side towers)
+    return 'princess_tower_blue.png';
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    
+    // Check if tower phase has changed
+    final newPhase = _getTowerPhase();
+    if (newPhase != _currentPhase) {
+      _loadTowerSprite();
     }
   }
 

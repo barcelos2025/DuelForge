@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'duel_colors.dart';
 import 'duel_typography.dart';
 import 'duel_ui_tokens.dart';
@@ -11,10 +12,10 @@ class DFTheme {
       scaffoldBackgroundColor: DuelColors.background,
       
       // Font Family
-      fontFamily: DuelTypography.fontUI,
+      fontFamily: GoogleFonts.inter().fontFamily,
       
       // Text Theme
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: DuelTypography.displayLarge,
         displayMedium: DuelTypography.displayMedium,
         displaySmall: DuelTypography.displaySmall,
@@ -71,11 +72,11 @@ class DFTheme {
   static const Color gold = DuelColors.accentGold;
   static const Color ice = Color(0xFFB3E5FC); // Light Blue for Ice theme
 
-  static const TextStyle displayLarge = DuelTypography.displayLarge;
-  static const TextStyle titleLarge = DuelTypography.displayMedium; // Mapping titleLarge to displayMedium
-  static const TextStyle titleMedium = DuelTypography.displaySmall; // Mapping titleMedium to displaySmall
-  static const TextStyle labelBold = DuelTypography.labelCaps;
-  static const TextStyle bodyText = DuelTypography.bodyMedium;
+  static final TextStyle displayLarge = DuelTypography.displayLarge;
+  static final TextStyle titleLarge = DuelTypography.displayMedium; // Mapping titleLarge to displayMedium
+  static final TextStyle titleMedium = DuelTypography.displaySmall; // Mapping titleMedium to displaySmall
+  static final TextStyle labelBold = DuelTypography.labelCaps;
+  static final TextStyle bodyText = DuelTypography.bodyMedium;
 
   static final List<BoxShadow> shadowDepth = DuelUiTokens.shadowMedium;
   static final List<BoxShadow> glowCyan = DuelUiTokens.glowCyan;

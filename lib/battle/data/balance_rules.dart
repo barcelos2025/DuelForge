@@ -327,9 +327,17 @@ class BalanceRules {
 
   static BattleStats computeFinalStats(String cardId, int level) {
     // 1. Find definition
+    // 1. Find definition
     final def = cardCatalog.firstWhere(
       (c) => c.cardId == cardId,
-      orElse: () => throw Exception("Card not found: $cardId"),
+      orElse: () => CardDefinition(
+        cardId: cardId,
+        cost: 3, // Default cost
+        type: CardType.tropa, // Default type
+        archetype: 'bruiser', // Default archetype
+        function: 'unknown',
+        tags: [],
+      ),
     );
 
     // 2. Get Base
@@ -386,7 +394,14 @@ class BalanceRules {
   static int computeUpgradeCost(String cardId, int currentLevel) {
     final def = cardCatalog.firstWhere(
       (c) => c.cardId == cardId,
-      orElse: () => throw Exception("Card not found: $cardId"),
+      orElse: () => CardDefinition(
+        cardId: cardId,
+        cost: 0,
+        type: CardType.tropa,
+        archetype: 'unknown',
+        function: 'unknown',
+        tags: [],
+      ),
     );
 
     double multiplier = 1.0;

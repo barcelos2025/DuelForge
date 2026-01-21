@@ -5,6 +5,7 @@ import '../cards/presentation/widgets/card_action_panel.dart';
 
 // Widgets
 import 'presentation/widgets/deck_header.dart';
+import 'presentation/widgets/deck_selector.dart';
 import 'presentation/widgets/deck_slots.dart';
 import 'presentation/widgets/card_collection_grid.dart';
 import 'presentation/widgets/swap_confirm_dialog.dart';
@@ -44,6 +45,16 @@ class _DeckBuilderContentState extends State<_DeckBuilderContent> with TickerPro
   bool _isSwapping = false;
   SelectedCardRef? _swappingSource;
   SelectedCardRef? _swappingTarget;
+
+  @override
+  void initState() {
+    super.initState();
+    // Force reload deck from profile when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = context.read<DeckViewModel>();
+      vm.notifyListeners(); // Force UI update with current deck
+    });
+  }
 
   void _handleCardTap(BuildContext context, DeckViewModel vm, String cardId, DeckSide side, int index) {
     if (_isSwapping) return;
@@ -134,17 +145,7 @@ class _DeckBuilderContentState extends State<_DeckBuilderContent> with TickerPro
       // Fallback if rects not found
       success = await vm.swapCards(targetId, targetSide, targetIndex);
     }
-
-    if (mounted && success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Cartas trocadas!', style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.cyan.withOpacity(0.8),
-          duration: const Duration(milliseconds: 1500),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+    // Removed snackbar notification - cards swap silently
   }
 
   void _showCardOptions(BuildContext context, DeckViewModel vm, String cardId) {
@@ -194,12 +195,55 @@ class _DeckBuilderContentState extends State<_DeckBuilderContent> with TickerPro
         absorbing: _isSwapping,
         child: Stack(
           children: [
-            // Background
+            // 1. Dark Ice Background - Base Layer
             Positioned.fill(
-              child: Image.asset(
-                'assets/ui/bg_deck_option_01_runic_frost_v01.png',
-                fit: BoxFit.cover,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      const Color(0xFF0A1628), // Dark navy blue (top)
+                      const Color(0xFF05080F), // Almost black (bottom)
+                    ],
+                  ),
+                ),
               ),
+            ),
+            
+            // 2. Ice Texture Overlay (subtle)
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0.15,
+                child: Image.asset(
+                  'assets/ui/bg_deck_option_01_runic_frost_v01.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox(),
+                ),
+              ),
+            ),
+            
+            // 3. Depth Gradient (creates atmosphere)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: Alignment.topCenter,
+                    radius: 1.5,
+                    colors: [
+                      const Color(0xFF1A3A5A).withOpacity(0.2), // Icy blue glow
+                      Colors.transparent,
+                      const Color(0xFF000000).withOpacity(0.3), // Dark vignette
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
+                ),
+              ),
+            ),
+            
+            // 4. Animated Snow Particles (subtle, blurred)
+            Positioned.fill(
+              child: _SnowParticles(),
             ),
             
             // Content
@@ -210,6 +254,8 @@ class _DeckBuilderContentState extends State<_DeckBuilderContent> with TickerPro
                     cardCount: vm.currentDeck.length,
                     averageCost: vm.averageCost,
                   ),
+                  
+                  DeckSelector(viewModel: vm),
                   
                   DeckSlots(
                     currentDeck: vm.currentDeck,
@@ -266,4 +312,84 @@ class _DeckBuilderContentState extends State<_DeckBuilderContent> with TickerPro
       ),
     );
   }
+}
+
+// Animated Snow Particles Widget
+class _SnowParticles extends StatefulWidget {
+  @override
+  State<_SnowParticles> createState() => _SnowParticlesState();
+}
+
+class _SnowParticlesState extends State<_SnowParticles> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  final List<_SnowFlake> _snowflakes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 20),
+    )..repeat();
+
+    // Create subtle snow particles (fewer for performance)
+    for (int i = 0; i < 30; i++) {
+      _snowflakes.add(_SnowFlake());
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: _SnowPainter(_snowflakes, _controller.value),
+        );
+      },
+    );
+  }
+}
+
+class _SnowFlake {
+  double x = (DateTime.now().millisecondsSinceEpoch % 1000) / 1000.0;
+  double y = (DateTime.now().microsecondsSinceEpoch % 1000) / 1000.0;
+  double speed = 0.3 + (DateTime.now().millisecondsSinceEpoch % 100) / 200.0;
+  double size = 1.5 + (DateTime.now().microsecondsSinceEpoch % 100) / 100.0;
+  double opacity = 0.1 + (DateTime.now().millisecondsSinceEpoch % 50) / 200.0;
+}
+
+class _SnowPainter extends CustomPainter {
+  final List<_SnowFlake> snowflakes;
+  final double animationValue;
+
+  _SnowPainter(this.snowflakes, this.animationValue);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.0); // Blurred effect
+
+    for (var flake in snowflakes) {
+      final y = ((flake.y + animationValue * flake.speed) % 1.0) * size.height;
+      final x = flake.x * size.width;
+      
+      paint.color = Colors.white.withOpacity(flake.opacity);
+      canvas.drawCircle(
+        Offset(x, y),
+        flake.size,
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_SnowPainter oldDelegate) => true;
 }

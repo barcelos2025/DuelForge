@@ -61,6 +61,34 @@
 | Raios | `df_potion_lightning_v01.png` | Ciano | ⏳ Pendente |
 | Lendária | `df_potion_legendary_v01.png` | Dourado | ⏳ Pendente |
 
+### ✅ Ícones de Classes (11)
+
+| Classe | Arquivo | Descrição |
+|--------|---------|-----------|
+| Guerreiro | `warrior.png` | Espada e machado cruzados em prata |
+| Mago | `mage.png` | Cajado mágico com runas ciano |
+| Arqueiro | `archer.png` | Arco e flecha em verde floresta |
+| Guardião | `guardian.png` | Escudo com runas protetoras bronze |
+| Bruxo/Bruxa | `warlock.png` | Caveira de corvo com magia roxa |
+| Bárbaro | `berserker.png` | Cabeça de urso em vermelho fúria |
+| Ladino | `rogue.png` | Adagas cruzadas em sombra |
+| Xamã | `shaman.png` | Lobo espiritual com energia natural |
+| Einherjar | `einherjar.png` | Elmo alado dourado |
+| Valquíria | `valkyrie.png` | Lança alada prateada |
+| Mestre das Runas | `runemaster.png` | Runas brilhantes em âmbar |
+
+**Localização**: `assets/ui/icons/classes/`  
+**Uso**: Exibir a classe do personagem no perfil do jogador
+
+### ✅ Molduras de UI
+
+| Asset | Arquivo | Uso |
+|-------|---------|-----|
+| Moldura de Avatar | `avatar_frame.png` | Moldura decorativa para avatares |
+| Moldura de Nome | `player_name_frame.png` | Moldura horizontal para nome e classe do jogador |
+
+**Localização**: `assets/ui/`
+
 ---
 
 ## 🎨 Especificações Visuais

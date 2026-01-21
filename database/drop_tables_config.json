@@ -1,0 +1,106 @@
+{
+    "drop_tables": [
+        {
+            "id": "dt_chest_wooden",
+            "description": "Baú de Madeira (Iniciante)",
+            "entries": [
+                {
+                    "item_type": "card_fragment",
+                    "item_id": "random",
+                    "rarity_filter": "common",
+                    "min_quantity": 1,
+                    "max_quantity": 3,
+                    "weight": 100,
+                    "comment": "TODO: Ajustar range baseado na arena do jogador"
+                }
+            ]
+        },
+        {
+            "id": "dt_chest_iron",
+            "description": "Baú de Ferro (Intermediário)",
+            "entries": [
+                {
+                    "item_type": "card_fragment",
+                    "item_id": "random",
+                    "rarity_filter": "common",
+                    "min_quantity": 2,
+                    "max_quantity": 5,
+                    "weight": 90
+                },
+                {
+                    "item_type": "card_fragment",
+                    "item_id": "random",
+                    "rarity_filter": "rare",
+                    "min_quantity": 1,
+                    "max_quantity": 2,
+                    "weight": 10,
+                    "comment": "TODO: Aumentar chance se jogador tiver passe"
+                }
+            ]
+        },
+        {
+            "id": "dt_chest_runic",
+            "description": "Baú Rúnico (Avançado)",
+            "entries": [
+                {
+                    "item_type": "card_fragment",
+                    "item_id": "random",
+                    "rarity_filter": "rare",
+                    "min_quantity": 5,
+                    "max_quantity": 10,
+                    "weight": 80
+                },
+                {
+                    "item_type": "card_fragment",
+                    "item_id": "random",
+                    "rarity_filter": "epic",
+                    "min_quantity": 1,
+                    "max_quantity": 3,
+                    "weight": 20
+                }
+            ]
+        },
+        {
+            "id": "dt_chest_legendary",
+            "description": "Baú Lendário (Premium)",
+            "entries": [
+                {
+                    "item_type": "card_fragment",
+                    "item_id": "random",
+                    "rarity_filter": "legendary",
+                    "min_quantity": 1,
+                    "max_quantity": 1,
+                    "weight": 100,
+                    "comment": "TODO: Garantir que não dropa premium cards (Thor/Odyn/Freya) aqui"
+                }
+            ]
+        },
+        {
+            "id": "dt_premium_parts",
+            "description": "Partes de Cartas Premium (Eventos/Loja)",
+            "entries": [
+                {
+                    "item_type": "card_part",
+                    "item_id": "thor",
+                    "min_quantity": 1,
+                    "max_quantity": 1,
+                    "weight": 33
+                },
+                {
+                    "item_type": "card_part",
+                    "item_id": "odyn",
+                    "min_quantity": 1,
+                    "max_quantity": 1,
+                    "weight": 33
+                },
+                {
+                    "item_type": "card_part",
+                    "item_id": "freya",
+                    "min_quantity": 1,
+                    "max_quantity": 1,
+                    "weight": 34
+                }
+            ]
+        }
+    ]
+}

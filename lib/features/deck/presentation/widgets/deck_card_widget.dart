@@ -4,6 +4,7 @@ import '../../../../battle/data/card_catalog.dart';
 import '../../../../ui/theme/duel_colors.dart';
 import '../anim/card_rect_registry.dart';
 import 'glow_border.dart';
+import '../../../cards/presentation/widgets/card_info_modal.dart';
 
 class DeckCardWidget extends StatefulWidget {
   final String? cardId;
@@ -151,13 +152,7 @@ class _DeckCardWidgetState extends State<DeckCardWidget> {
               blurRadius: 12,
               spreadRadius: 1,
             ),
-          // Selection Glow (Extra layer if needed, but GlowBorder handles the main one)
-          if (widget.isSelected)
-             BoxShadow(
-               color: Colors.cyanAccent.withOpacity(0.1),
-               blurRadius: 4,
-               spreadRadius: 0,
-             ),
+          // Selection glow is now handled by GlowBorder widget only
         ],
       ),
       child: widget.cardId != null
@@ -177,26 +172,58 @@ class _DeckCardWidgetState extends State<DeckCardWidget> {
             ),
     );
 
+    Widget cardWithInfo = Stack(
+      children: [
+        content,
+        if (widget.cardId != null)
+          Positioned(
+            top: 4,
+            right: 4,
+            child: _InfoButton(cardId: widget.cardId!),
+          ),
+      ],
+    );
+
     if (widget.isStaticMode) {
       return GlowBorder(
         isSelected: widget.isSelected,
-        child: content,
+        color: borderColor, // Use rarity color
+        child: cardWithInfo,
       );
     }
 
     return GestureDetector(
       onTap: widget.onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
-        transform: Matrix4.identity()
-          ..translate(0.0, widget.isSelected ? -8.0 : 0.0)
-          ..scale(widget.isSelected ? 1.06 : 1.0),
-        child: GlowBorder(
-          isSelected: widget.isSelected,
-          child: content,
-        ),
+      child: GlowBorder(
+        isSelected: widget.isSelected,
+        color: borderColor, // Use rarity color
+        child: cardWithInfo,
       ),
+    );
+  }
+}
+
+class _InfoButton extends StatelessWidget {
+  final String cardId;
+  const _InfoButton({required this.cardId});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Find card definition
+        try {
+          final card = cardCatalog.firstWhere((c) => c.cardId == cardId);
+          showDialog(
+            context: context,
+            builder: (_) => CardInfoModal(card: card, level: 1),
+          );
+        } catch (_) {}
+      },
+        child: Image.asset(
+          'assets/ui/icons/info_icon.png',
+          fit: BoxFit.contain,
+        ),
     );
   }
 }

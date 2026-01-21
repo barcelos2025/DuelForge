@@ -22,18 +22,53 @@ class HandCardsRow extends StatelessWidget {
             final canAfford = currentPower >= carta.custo;
             final isSelected = selected?.id == carta.id;
 
-            return GestureDetector(
-              onTap: () {
-                if (canAfford) {
-                  vm.selecionarCarta(carta);
-                } else {
-                  // Shake or feedback?
-                }
+            final cardWidget = _CardSlot(
+              carta: carta,
+              canAfford: canAfford,
+              isSelected: isSelected,
+            );
+
+            if (!canAfford) {
+              // Se não pode pagar, apenas mostra o widget (talvez com feedback de erro no tap)
+              return GestureDetector(
+                onTap: () {
+                  // Feedback visual/sonoro de erro
+                },
+                child: cardWidget,
+              );
+            }
+
+            return Draggable<Carta>(
+              data: carta,
+              feedback: Transform.scale(
+                scale: 1.1,
+                child: Opacity(
+                  opacity: 0.8,
+                  child: cardWidget,
+                ),
+              ),
+              childWhenDragging: Opacity(
+                opacity: 0.3,
+                child: cardWidget,
+              ),
+              onDragStarted: () {
+                // Seleciona a carta ao iniciar o arrasto para que o Ghost apareça no jogo
+                vm.selecionarCarta(carta);
               },
-              child: _CardSlot(
-                carta: carta,
-                canAfford: canAfford,
-                isSelected: isSelected,
+              onDraggableCanceled: (_, __) {
+                // Se soltar fora de um alvo válido, cancela seleção
+                vm.selecionarCarta(null);
+              },
+              onDragEnd: (details) {
+                // O deploy real é tratado pelo DragTarget no BattleScreen
+                // Se o deploy falhar (não aceito), o onDraggableCanceled cuida.
+                // Se for aceito, o DragTarget cuida.
+              },
+              child: GestureDetector(
+                onTap: () {
+                  vm.selecionarCarta(carta);
+                },
+                child: cardWidget,
               ),
             );
           }).toList(),
@@ -43,7 +78,7 @@ class HandCardsRow extends StatelessWidget {
   }
 }
 
-class _CardSlot extends StatelessWidget {
+class _CardSlot extends StatefulWidget {
   final Carta carta;
   final bool canAfford;
   final bool isSelected;
@@ -55,73 +90,103 @@ class _CardSlot extends StatelessWidget {
   });
 
   @override
+  State<_CardSlot> createState() => _CardSlotState();
+}
+
+class _CardSlotState extends State<_CardSlot> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Resolve Rarity Color
     Color borderColor = Colors.white10;
     Color shadowColor = Colors.transparent;
     
-    // Map string rarity to color
-    switch (carta.raridade.toLowerCase()) {
-      case 'comum':
-      case 'common':
-        borderColor = DuelColors.rarityCommon;
-        break;
-      case 'rara':
-      case 'rare':
-        borderColor = DuelColors.rarityRare;
-        break;
-      case 'epica':
-      case 'epic':
-        borderColor = DuelColors.rarityEpic;
-        break;
-      case 'lendaria':
-      case 'legendary':
-        borderColor = DuelColors.rarityLegendary;
-        break;
+    // Debug Rarity
+    // debugPrint('Card: ${widget.carta.nome}, Rarity: ${widget.carta.raridade}');
+
+    final r = widget.carta.raridade.trim().toLowerCase();
+    
+    if (r.contains('com') || r.contains('common')) {
+      borderColor = DuelColors.rarityCommonMetal;
+    } else if (r.contains('rar') || r.contains('rare')) {
+      borderColor = DuelColors.rarityRareMetal;
+    } else if (r.contains('epi') || r.contains('epic')) {
+      borderColor = DuelColors.rarityEpicMetal;
+    } else if (r.contains('len') || r.contains('leg')) {
+      borderColor = DuelColors.rarityLegendaryMetal;
+    } else {
+      borderColor = DuelColors.rarityCommonMetal; // Fallback
     }
+    
     shadowColor = borderColor.withOpacity(0.25);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      width: isSelected ? 80 : 70,
-      height: isSelected ? 100 : 90,
-      margin: EdgeInsets.only(bottom: isSelected ? 10 : 0),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A2A3A),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          // If selected, use Cyan. If not selected but can afford, use Rarity Color. If cannot afford, use Red/Dimmed.
-          color: isSelected 
-              ? Colors.cyanAccent 
-              : (canAfford ? borderColor : Colors.red.withOpacity(0.5)),
-          width: isSelected ? 3 : 2,
-        ),
-        boxShadow: [
-          // Rarity Glow (always present if affordable, or just subtle)
-          if (canAfford && !isSelected)
-            BoxShadow(
-              color: shadowColor,
-              blurRadius: 8,
-              spreadRadius: 1,
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        // Use a sine curve for smoother "breathing" effect
+        final glowValue = Curves.easeInOut.transform(_controller.value); 
+        
+        return Container(
+          width: 70,
+          height: 90,
+          // No margin change on selection
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A3A),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              // Selected: Rarity Color (Width 3)
+              // Affordable: Rarity Color (Width 2)
+              // Not Affordable: Red/Dimmed (Width 2)
+              color: widget.isSelected 
+                  ? borderColor 
+                  : (widget.canAfford ? borderColor : Colors.red.withOpacity(0.5)),
+              width: widget.isSelected ? 3 : 2,
             ),
-          // Selection Glow
-          if (isSelected)
-            BoxShadow(
-              color: Colors.cyanAccent.withOpacity(0.4), 
-              blurRadius: 10, 
-              spreadRadius: 2
-            ),
-        ],
-      ),
+            boxShadow: [
+              // Selection Glow (Animated)
+              if (widget.isSelected)
+                BoxShadow(
+                  color: borderColor.withOpacity(0.6), 
+                  blurRadius: 6 + (glowValue * 10), // 6 -> 16 (Smoother range)
+                  spreadRadius: 1 + (glowValue * 3), // 1 -> 4
+                )
+              // Affordable Glow (Static)
+              else if (widget.canAfford)
+                BoxShadow(
+                  color: shadowColor,
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+            ],
+          ),
+          child: child,
+        );
+      },
       child: Stack(
         children: [
           // Image
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: Opacity(
-              opacity: canAfford ? 1.0 : 0.5,
+              opacity: widget.canAfford ? 1.0 : 0.5,
               child: Image.asset(
-                carta.imagePath ?? '',
+                widget.carta.imagePath ?? '',
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
@@ -129,7 +194,7 @@ class _CardSlot extends StatelessWidget {
                   color: Colors.grey[800],
                   child: Center(
                     child: Text(
-                      carta.nome.substring(0, 2).toUpperCase(),
+                      widget.carta.nome.substring(0, 2).toUpperCase(),
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ),
@@ -149,7 +214,7 @@ class _CardSlot extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Text(
-                '${carta.custo}',
+                '${widget.carta.custo}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -159,7 +224,9 @@ class _CardSlot extends StatelessWidget {
             ),
           ),
 
-          // Level/Rarity Indicator (Optional)
+
+
+          // Name
           Positioned(
             bottom: 0,
             left: 0,
@@ -175,7 +242,7 @@ class _CardSlot extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(6)),
               ),
               child: Text(
-                carta.nome,
+                widget.carta.nome,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white, fontSize: 8),
                 overflow: TextOverflow.ellipsis,

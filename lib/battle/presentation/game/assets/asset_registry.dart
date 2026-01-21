@@ -43,6 +43,12 @@ class AssetRegistry {
     }
 
     // Attempt to load
+    // TODO: Remove this bypass when tower assets are added
+    if (unitId == 'king_tower' || unitId == 'princess_tower') {
+      debugPrint('[AssetRegistry] BYPASS: Known missing asset $unitId. Using placeholder.');
+      return await _getPlaceholder();
+    }
+
     final loadedAnim = await _loader.loadUnitAnimation(unitId, anim, dir);
 
     if (loadedAnim != null) {

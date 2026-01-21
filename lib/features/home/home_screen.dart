@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-import '../../ui/theme/df_theme.dart';
+import '../../ui/theme/duel_colors.dart';
+import '../../ui/theme/duel_ui_tokens.dart';
+import '../../ui/components/df_top_bar.dart';
+import '../../ui/components/df_bottom_dock.dart';
+import '../../ui/components/df_season_banner.dart';
+import '../../ui/components/df_primary_cta.dart';
 import '../../app/navigation/rotas.dart';
-
-// Widgets
-import 'presentation/widgets/profile_header.dart';
 import 'presentation/widgets/wallet_row.dart';
-import 'presentation/widgets/season_hero_card.dart';
-import 'presentation/widgets/battle_cta_button.dart';
-import 'presentation/widgets/quick_actions_grid.dart';
-import 'presentation/widgets/events_carousel.dart';
-import 'presentation/widgets/bottom_nav.dart';
-import 'presentation/widgets/snow_particles.dart';
 import 'presentation/widgets/current_arena_card.dart';
+import 'presentation/widgets/quick_actions_grid.dart';
 import '../battle/domain/models/arena_definition.dart';
+import '../../core/audio/audio_service.dart';
+import '../deck/deck_screen.dart';
+import '../profile/presentation/widgets/player_profile_sheet.dart';
+import 'package:provider/provider.dart';
+import '../profile/services/profile_service.dart';
+
+import '../avatars/registry/avatar_registry.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,143 +26,160 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0; // Início
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Start background music
+    AudioService().playMusic('main_menu_theme.mp3');
+  }
 
   void _onNavTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-
+    setState(() => _currentIndex = index);
+    
     switch (index) {
-      case 0:
-        // Already Home
-        break;
-      case 1:
-        Navigator.pushNamed(context, Rotas.deck);
-        break;
-      case 2:
-        // Navigator.pushNamed(context, Rotas.upgrade);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Acesse o Deck para evoluir suas cartas!')),
-        );
-        break;
-      case 3:
+      case 0: // Loja
         Navigator.pushNamed(context, Rotas.shop);
         break;
-      case 4:
+      case 1: // Batalha
+        AudioService().stopMusic();
         Navigator.pushNamed(context, Rotas.battle);
+        break;
+      case 2: // Deck
+        _navigateToDeck();
         break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: DFTheme.background,
-      body: Stack(
-        children: [
-          // 1. Background Layer
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/home_bg_storm_runes.png', // New premium background
-              fit: BoxFit.cover,
-              color: Colors.black.withOpacity(0.3), // Reduced overlay opacity for better visibility
-              colorBlendMode: BlendMode.darken,
+    final profileService = Provider.of<ProfileService>(context);
+
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity! < -500) { // Swipe Left
+          _navigateToDeck();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: DuelColors.background,
+        body: Column(
+          children: [
+            // Top Bar
+            DFTopBar(
+              playerName: profileService.profile.nickname,
+              playerLevel: profileService.profile.level,
+              trophies: profileService.trophies,
+              rankLabel: profileService.currentArena.name,
+              avatarImage: AvatarRegistry.instance.get(profileService.profile.avatarId).assetPath,
+              onTapProfile: () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (_) => const PlayerProfileSheet(),
+                );
+              },
+              onTapSettings: () {
+                Navigator.pushNamed(context, Rotas.assetsShowcase);
+              },
             ),
-          ),
-          
-          // 2. Particles / Runic Glow (Simulated with Gradient for now)
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment.topCenter,
-                  radius: 1.5,
-                  colors: [
-                    DFTheme.ice.withOpacity(0.1),
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.4),
+            
+            // Main Content - SEM SCROLL, tudo harmonioso
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: DuelUiTokens.spacing16,
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: DuelUiTokens.spacing8),
+                    
+                    // Wallet Row (Fixed Height)
+                    const WalletRow(),
+                    
+                    const SizedBox(height: DuelUiTokens.spacing8),
+                    
+                    // Season Banner (Flexible)
+                    Flexible(
+                      flex: 3,
+                      child: DFSeasonBanner(
+                        title: 'Tempestade de Inverno',
+                        description: 'Conquiste recompensas épicas',
+                        imageAsset: 'assets/images/home_bg_storm_runes.png',
+                        timeRemaining: const Duration(days: 14),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: DuelUiTokens.spacing8),
+                    
+                    // Battle CTA (Flexible)
+                    Flexible(
+                      flex: 2,
+                      child: DFPrimaryCTA(
+                        title: 'BATALHAR',
+                        subtitle: 'Entre na arena',
+                        leftIcon: Icons.sports_kabaddi,
+                        onPressed: () {
+                          AudioService().stopMusic();
+                          Navigator.pushNamed(context, Rotas.battle);
+                        },
+                      ),
+                    ),
+                    
+                    const SizedBox(height: DuelUiTokens.spacing8),
+                    
+                    // Current Arena (Fixed Height)
+                    CurrentArenaCard(
+                      arena: profileService.currentArena,
+                    ),
+                    
+                    const SizedBox(height: DuelUiTokens.spacing8),
+                    
+                    // Quick Actions (Fixed Height)
+                    const QuickActionsGrid(),
+                    
+                    const SizedBox(height: DuelUiTokens.spacing4),
                   ],
                 ),
               ),
             ),
-          ),
-          
-          // 2.1 Snow Particles
-          const Positioned.fill(
-            child: SnowParticles(),
-          ),
-
-          // 3. Main Content
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                // Fixed Header Elements
-                ProfileHeader(
-                  onSettingsTap: () => debugPrint('Settings'),
-                ),
-                const WalletRow(),
-                
-                // Scrollable Body
-                Expanded(
-                  child: CustomScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    slivers: [
-                      const SliverToBoxAdapter(child: SizedBox(height: 16)),
-                      
-                      // Season Hero
-                      const SliverToBoxAdapter(
-                        child: SeasonHeroCard(),
-                      ),
-                      
-                      // Battle CTA (The Star)
-                      SliverToBoxAdapter(
-                        child: BattleCTAButton(
-                          onTap: () => Navigator.pushNamed(context, Rotas.battle),
-                        ),
-                      ),
-
-                      // Current Arena
-                      SliverToBoxAdapter(
-                        child: CurrentArenaCard(
-                          arena: ArenaCatalog.getArenaForTrophies(0), // Mocked 0 trophies for now
-                        ),
-                      ),
-                      
-                      // Quick Actions
-                      const SliverToBoxAdapter(
-                        child: QuickActionsGrid(),
-                      ),
-                      
-                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                      
-                      // Events
-                      const SliverToBoxAdapter(
-                        child: EventsCarousel(),
-                      ),
-                      
-                      // Bottom Spacer for Nav
-                      const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // 4. Bottom Navigation
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: DuelForgeBottomNav(
+            
+            // Bottom Navigation
+            DFBottomDock(
               currentIndex: _currentIndex,
-              onTap: _onNavTap,
+              onChange: _onNavTap,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  void _navigateToDeck() {
+    // Change Music
+    AudioService().playMusic('deck_theme.mp3');
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const DeckScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    ).then((_) {
+      // Restore Main Menu Music when returning
+      AudioService().playMusic('main_menu_theme.mp3');
+    });
   }
 }

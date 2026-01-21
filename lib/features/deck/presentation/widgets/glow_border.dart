@@ -24,7 +24,7 @@ class _GlowBorderState extends State<GlowBorder> with SingleTickerProviderStateM
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 800), // Faster pulse
     )..repeat(reverse: true);
   }
 
@@ -61,24 +61,17 @@ class _GlowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withOpacity(0.3 + (progress * 0.4)) // Pulse 0.3 -> 0.7
+    // Smaller, brighter, more pulsing glow in rarity color
+    final glowPaint = Paint()
+      ..color = color.withOpacity(0.6 + (progress * 0.35)) // Pulse 0.6 -> 0.95 (brighter)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..maskFilter = const MaskFilter.blur(BlurStyle.outer, 6);
+      ..strokeWidth = 3 // Smaller
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5); // Tighter blur
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(12));
-
-    canvas.drawRRect(rrect, paint);
-    
-    // Inner sharp stroke
-    final sharpPaint = Paint()
-      ..color = color.withOpacity(0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
       
-    canvas.drawRRect(rrect, sharpPaint);
+    canvas.drawRRect(rrect, glowPaint);
   }
 
   @override

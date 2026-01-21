@@ -24,8 +24,17 @@ class DeckViewModel extends ChangeNotifier {
   }
 
   void _load() {
-    currentDeck = List.from(profileService.profile.currentDeck);
+    try {
+      final activeDeck = profileService.profile.decks.firstWhere((d) => d.isActive);
+      currentDeck = List.from(activeDeck.cardIds);
+      print('🎴 DeckViewModel: Loaded deck "${activeDeck.name}" with ${currentDeck.length} cards');
+      print('   Card IDs: $currentDeck');
+    } catch (e) {
+      currentDeck = [];
+      print('⚠️ No active deck found: $e');
+    }
     allCards = cardCatalog;
+    print('📚 DeckViewModel: Total cards in catalog: ${allCards.length}');
     notifyListeners();
   }
 
@@ -221,6 +230,40 @@ class DeckViewModel extends ChangeNotifier {
     });
 
     return list;
+  }
+
+  // --- Multi-Deck Support ---
+
+  List<dynamic> get decks => profileService.profile.decks;
+  
+  String get activeDeckId {
+    try {
+      return profileService.profile.decks.firstWhere((d) => d.isActive).id;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Future<void> criarNovoDeck(String nome) async {
+    await profileService.createDeck(nome);
+    notifyListeners();
+  }
+
+  Future<void> selecionarDeck(String deckId) async {
+    await profileService.setActiveDeck(deckId);
+    // Recarrega o deck ativo na view
+    _load();
+    notifyListeners();
+  }
+
+  Future<void> excluirDeck(String deckId) async {
+    await profileService.deleteDeck(deckId);
+    notifyListeners();
+  }
+
+  Future<void> renomearDeck(String deckId, String novoNome) async {
+    await profileService.renameDeck(deckId, novoNome);
+    notifyListeners();
   }
 
   @override

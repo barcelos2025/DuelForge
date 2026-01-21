@@ -79,7 +79,7 @@ class SwapConfirmDialog extends StatelessWidget {
                       side: const BorderSide(color: DuelColors.primary),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(DuelUiTokens.radiusMedium)),
                     ),
-                    child: const Text('TROCAR', style: DuelTypography.buttonText),
+                    child: Text('TROCAR', style: DuelTypography.buttonText),
                   ),
                 ),
               ],

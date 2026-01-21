@@ -10,6 +10,8 @@ import '../../battle/domain/events/battle_events.dart' as events;
 import '../../battle/domain/config/battle_field_config.dart';
 import '../../battle/presentation/widgets/hud/battle_hud.dart';
 import '../../core/assets/asset_registry.dart';
+import '../../core/audio/audio_service.dart';
+import '../../features/profile/services/profile_service.dart';
 
 import 'dart:math';
 
@@ -32,35 +34,50 @@ class _BattleScreenState extends State<BattleScreen> {
     _arenaIndex = Random().nextInt(6) + 1; // 1 a 6
     
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _vm = context.read<BattleViewModel>();
-      _vm!.setContext(context); // Set context for navigation
-      await _vm!.inicializar();
-      
-      _vm!.addListener(_syncSelection);
+      try {
+        _vm = context.read<BattleViewModel>();
+        final profileService = context.read<ProfileService>();
+        _vm!.setContext(context); // Set context for navigation
+        
+        await _vm!.inicializar();
+        
+        if (!mounted) return;
+        
+        _vm!.addListener(_syncSelection);
 
-      setState(() {
-        _game = BattleGame(
-          matchState: _vm!.matchState, 
-          matchLoop: _vm!.matchLoop,
-          onDeploy: (carta, position) {
-             final normalizedX = (position.x / BattleFieldConfig.width) + 0.5;
-             final normalizedY = (position.y / BattleFieldConfig.height) + 0.5;
-             
-             _vm!.jogarCarta(carta, position: Vector2(normalizedX, normalizedY));
-          },
-          onCancel: () {
-             _vm!.selecionarCarta(null);
-          },
-          arenaAssetPath: _vm!.currentArena.assetPath,
-        );
-      });
-      
-      _eventSubscription = _vm!.eventStream.listen(_handleBattleEvent);
-      
-      // Listen to MatchState events for Game Over
-      _vm!.matchState.onMatchEnd = (winner) {
-         _onGameEvent('game_over', {'winner': winner.name});
-      };
+        setState(() {
+          _game = BattleGame(
+            matchState: _vm!.matchState, 
+            matchLoop: _vm!.matchLoop,
+            onDeploy: (carta, position) {
+               final normalizedX = (position.x / BattleFieldConfig.width) + 0.5;
+               final normalizedY = (position.y / BattleFieldConfig.height) + 0.5;
+               
+               _vm!.jogarCarta(carta, position: Vector2(normalizedX, normalizedY));
+            },
+            onCancel: () {
+               _vm!.selecionarCarta(null);
+            },
+            arenaAssetPath: _vm!.currentArena.assetPath,
+          );
+        });
+        
+        _eventSubscription = _vm!.eventStream.listen(_handleBattleEvent);
+        
+        // Listen to MatchState events for Game Over
+        _vm!.matchState.onMatchEnd = (winner) {
+           _onGameEvent('game_over', {'winner': winner.name});
+        };
+      } catch (e, stackTrace) {
+        print('❌ Error initializing BattleScreen: $e');
+        print('Stack trace: $stackTrace');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao iniciar batalha: $e')),
+          );
+          Navigator.of(context).pop();
+        }
+      }
     });
   }
 
@@ -81,7 +98,9 @@ class _BattleScreenState extends State<BattleScreen> {
   }
 
   void _handleBattleEvent(events.BattleEvent event) {
-    // BattleGame syncs automatically with MatchState.
+    if (event is events.MatchEndEvent) {
+      _onGameEvent('game_over', {'winner': event.winner});
+    }
   }
 
   void _onGameEvent(String evento, Map<String, dynamic> payload) {
@@ -142,16 +161,40 @@ class _BattleScreenState extends State<BattleScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. Arena (Background) - Flutter Layer (Robust)
-          _ArenaBackground(assetPath: vm.currentArena.assetPath),
-
-          // 2. Game Engine (Flame)
+          // 1. Game Engine (Flame) with Arena Background
           Positioned.fill(
             child: _game != null 
-                ? GameWidget(
-                    game: _game!,
-                    backgroundBuilder: (context) => const SizedBox.shrink(), // Ensure transparency
-                  ) 
+                ? DragTarget<Carta>(
+                    onWillAccept: (carta) {
+                      return carta != null && _vm!.podeJogar(carta);
+                    },
+                    onAccept: (carta) {
+                      _game!.attemptDeploy();
+                    },
+                    onMove: (details) {
+                      final renderBox = context.findRenderObject() as RenderBox?;
+                      if (renderBox != null) {
+                        final localOffset = renderBox.globalToLocal(details.offset);
+                        _game!.updateGhost(Vector2(localOffset.dx, localOffset.dy));
+                      }
+                    },
+                    onLeave: (data) {
+                      // Keep ghost visible
+                    },
+                    builder: (context, candidateData, rejectedData) {
+                      return GameWidget(
+                        game: _game!,
+                        backgroundBuilder: (context) => Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage(vm.currentArena.assetPath),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )
                 : const Center(child: CircularProgressIndicator()),
           ),
 
@@ -175,7 +218,10 @@ class _BattleScreenState extends State<BattleScreen> {
             left: 10,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                AudioService().playMusic('main_menu_theme.mp3');
+                Navigator.pop(context);
+              },
             ),
           ),
         ],

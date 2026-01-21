@@ -22,11 +22,27 @@ class PowerService {
     _isOvertime = active;
   }
 
-  void tick(double dt) {
+  void tick(double dt, double timeElapsed, double matchDuration) {
     if (_currentPower >= maxPower) return;
 
-    final rate = _isOvertime ? BattleTuning.elixirRegenOvertime : BattleTuning.elixirRegenBase;
-    _currentPower += rate * dt;
+    // Calculate dynamic regeneration rate
+    // Start: 3.0s per elixir => 1/3 = 0.33 elixir/s
+    // End: 1.0s per elixir => 1/1 = 1.0 elixir/s
+    
+    double currentRate;
+    
+    if (_isOvertime) {
+      currentRate = 2.0; // Overtime: 0.5s per elixir (2.0 elixir/s) - Fixed fast rate
+    } else {
+      // Linear interpolation based on match progress
+      final progress = (timeElapsed / matchDuration).clamp(0.0, 1.0);
+      const startRate = 0.333; // 1 elixir per 3s
+      const endRate = 1.0;     // 1 elixir per 1s
+      
+      currentRate = startRate + (endRate - startRate) * progress;
+    }
+
+    _currentPower += currentRate * dt;
     
     if (_currentPower > maxPower) {
       _currentPower = maxPower;
@@ -39,10 +55,13 @@ class PowerService {
     if (BattleTuning.debugInfinitePower) return true;
 
     if (_currentPower >= cost) {
+      print('⚡ PowerService: Consuming $cost. Old: $_currentPower');
       _currentPower -= cost;
+      print('⚡ PowerService: New: $_currentPower');
       _powerController.add(_currentPower);
       return true;
     }
+    print('⚡ PowerService: Failed to consume $cost. Current: $_currentPower');
     return false;
   }
 

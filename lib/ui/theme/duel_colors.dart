@@ -12,6 +12,8 @@ class DuelColors {
   static const Color secondary = Color(0xFFD500F9); // Neon Purple
   static const Color accentGold = Color(0xFFFFD700); // Gold (Metal)
   static const Color accentOrange = Color(0xFFFF6D00); // Orange (Metal)
+  static const Color accentCyan = primary; // Alias for Neon Cyan
+  static const Color cyanNeon = primary; // Alias for Neon Cyan
 
   // --- Functional ---
   static const Color textPrimary = Color(0xFFF0F4F8); // White-ish Blue

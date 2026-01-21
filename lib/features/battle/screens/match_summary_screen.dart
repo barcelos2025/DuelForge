@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../battle/domain/services/telemetry_service.dart';
+import '../../../core/audio/audio_service.dart';
 
 class MatchSummaryScreen extends StatelessWidget {
   final MatchTelemetry telemetry;
@@ -61,7 +62,10 @@ class MatchSummaryScreen extends StatelessWidget {
             
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                AudioService().playMusic('main_menu_theme.mp3');
+                Navigator.of(context).pop();
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4CAF50),
                 padding: const EdgeInsets.symmetric(vertical: 16),

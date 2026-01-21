@@ -90,25 +90,26 @@ class DeckService {
 
 class DeckBuilder {
   static List<String> buildDefaultDeck() {
-    // Returns a balanced deck from the catalog
-    // 1. Tank: Tyr
-    // 2. Ranged: Troll Huntress
-    // 3. Spell: Thunder Hammer
-    // 4. Building: Watchtower
-    // 5. Assassin: Bear Berserker
-    // 6. Swarm/Cycle: Ice Runner
-    // 7. Support: Freyja
-    // 8. Air/Special: Odyn Ravens
+    // Deck Inicial: Apenas cartas COMUNS para equilíbrio
+    // Diversidade garantida: tanque, DPS, construções, feitiços, suporte
+    // 1. Mini-tanque: Escudeiro de Carvalho (2 custo)
+    // 2. DPS à distância: Arqueira do Fiorde (2 custo)
+    // 3. Agressivo: Berserker da Tundra (3 custo)
+    // 4. Defesa: Barricada de Troncos (2 custo)
+    // 5. Controle: Portão de Gelo (3 custo)
+    // 6. Aéreo: Corvos de Odyn (2 custo)
+    // 7. Feitiço: Chuva de Lanças (3 custo)
+    // 8. Suporte: Bardo Skald (3 custo)
     
     return [
-      'df_card_tyr_v01.jpg',
-      'df_card_troll_huntress_v01.jpg',
-      'df_card_thunder_hammer_v01.jpg',
-      'df_card_watchtower_v01.jpg',
-      'df_card_bear_berserker_v01.jpg',
-      'df_card_ice_runner_v01.jpg',
-      'df_card_freyja_v01.jpg',
-      'df_card_odyn_ravens_v01.jpg',
+      'escudeiro_carvalho',
+      'arqueira_fiorde',
+      'berserker_tundra',
+      'barricada_troncos',
+      'portao_gelo',
+      'corvos_odyn',
+      'chuva_lancas',
+      'bardo',
     ];
   }
 }

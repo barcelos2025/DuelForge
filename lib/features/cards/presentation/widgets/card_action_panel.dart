@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/number_formatter.dart';
 import '../../../../battle/data/card_catalog.dart';
 import '../../services/card_progression_service.dart';
 import 'card_info_modal.dart';
@@ -147,7 +148,7 @@ class _CardActionPanelState extends State<CardActionPanel> with SingleTickerProv
                             icon: Icons.arrow_upward,
                             color: Colors.amber,
                             isPrimary: true,
-                            subLabel: '$nextCoins 💰',
+                            subLabel: '${NumberFormatter.format(nextCoins)} 💰',
                             onTap: () => _confirmEvolve(context, progression, nextCoins, nextShards),
                           )
                         else
@@ -169,7 +170,7 @@ class _CardActionPanelState extends State<CardActionPanel> with SingleTickerProv
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '$shards / $nextShards Shards',
+                                    '${NumberFormatter.format(shards)} / ${NumberFormatter.format(nextShards)} Shards',
                                     style: TextStyle(color: Colors.white70, fontSize: 12),
                                   ),
                                 ],
@@ -206,7 +207,7 @@ class _CardActionPanelState extends State<CardActionPanel> with SingleTickerProv
         backgroundColor: const Color(0xFF1E1E2C),
         title: const Text('Evoluir Carta?', style: TextStyle(color: Colors.white)),
         content: Text(
-          'Deseja gastar $coins moedas e $shards shards para evoluir esta carta?',
+          'Deseja gastar ${NumberFormatter.format(coins)} moedas e ${NumberFormatter.format(shards)} shards para evoluir esta carta?',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [

@@ -41,23 +41,16 @@ class DFBottomDock extends StatelessWidget {
               ),
               _DockItem(
                 index: 1,
-                icon: Icons.style,
-                label: 'Deck',
+                icon: Icons.sports_kabaddi, // Batalha
+                label: 'Batalha',
                 isSelected: currentIndex == 1,
                 onTap: onChange,
               ),
               _DockItem(
                 index: 2,
-                icon: Icons.auto_awesome,
-                label: 'Evoluir',
+                icon: Icons.style,
+                label: 'Deck',
                 isSelected: currentIndex == 2,
-                onTap: onChange,
-              ),
-              _DockItem(
-                index: 3,
-                icon: Icons.shield, // Arena
-                label: 'Arena',
-                isSelected: currentIndex == 3,
                 onTap: onChange,
               ),
             ],

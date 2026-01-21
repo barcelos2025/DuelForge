@@ -14,11 +14,12 @@ class PowerBar extends StatelessWidget {
     return Consumer<BattleViewModel>(
       builder: (context, vm, child) {
         final current = vm.estado.runaAtual;
+        if (current < 10.0) print('📊 PowerBar Build: ${current.toStringAsFixed(2)}');
         final max = 10.0;
         final progress = (current / max).clamp(0.0, 1.0);
 
         return Container(
-          height: 24,
+          height: 17,
           decoration: BoxDecoration(
             color: Colors.black54,
             borderRadius: BorderRadius.circular(DuelUiTokens.radiusFull),
@@ -63,7 +64,7 @@ class PowerBar extends StatelessWidget {
               Center(
                 child: Text(
                   '${current.toInt()}/10',
-                  style: DuelTypography.hudNumber.copyWith(fontSize: 14),
+                  style: DuelTypography.hudNumber.copyWith(fontSize: 14, height: 1.0),
                 ),
               ),
             ],

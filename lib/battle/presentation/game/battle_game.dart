@@ -73,12 +73,7 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
     add(world);
     add(cameraComponent);
 
-    // Debug FPS
-    add(FpsTextComponent(
-      position: Vector2(10, 50),
-      scale: Vector2.all(1.0),
-      textRenderer: TextPaint(style: const TextStyle(color: Colors.white, fontSize: 14)),
-    ));
+
 
     // 2. Initial Sync
     _syncState();
@@ -96,6 +91,7 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
          debugPrint(' - Game Child: ${c.runtimeType}');
        }
     }
+    resumeEngine();
   }
 
   DamageNumberComponent getDamageNumber(int value, Vector2 position) {
@@ -140,7 +136,7 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
     _selectedCard = null;
   }
 
-  void _updateGhost(Vector2 screenPosition) {
+  void updateGhost(Vector2 screenPosition) {
     if (_ghost == null || _selectedCard == null) return;
 
     // Screen -> World
@@ -158,14 +154,11 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
     _ghost!.position = worldPos;
     
     // Validate
-    // Now that we clamped, it should be valid by definition of bounds, 
-    // but isValidDeploy might have other logic (e.g. excluding river if we add that later).
-    // For now, just check isValidDeploy to be safe and consistent.
     final isValid = BattleFieldConfig.isValidDeploy(worldPos, true);
     _ghost!.isValid = isValid;
   }
 
-  void _attemptDeploy() {
+  void attemptDeploy() {
     if (_ghost == null || _selectedCard == null) return;
     
     if (_ghost!.isValid) {
@@ -180,27 +173,27 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
 
   @override
   void onTapDown(TapDownInfo info) {
-    _updateGhost(info.eventPosition.widget);
+    updateGhost(info.eventPosition.widget);
   }
 
   @override
   void onTapUp(TapUpInfo info) {
-    _attemptDeploy();
+    attemptDeploy();
   }
 
   @override
   void onPanStart(DragStartInfo info) {
-    _updateGhost(info.eventPosition.widget);
+    updateGhost(info.eventPosition.widget);
   }
 
   @override
   void onPanUpdate(DragUpdateInfo info) {
-    _updateGhost(info.eventPosition.widget);
+    updateGhost(info.eventPosition.widget);
   }
 
   @override
   void onPanEnd(DragEndInfo info) {
-    _attemptDeploy();
+    attemptDeploy();
   }
 
   @override
@@ -209,7 +202,11 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
     debugMode = BattleTuning.debugShowHitboxes;
 
     // Drive Logic
-    matchLoop.update(dt);
+    try {
+      matchLoop.update(dt);
+    } catch (e) {
+      debugPrint('❌ Error in matchLoop.update: $e');
+    }
     
     super.update(dt);
     _syncState();
@@ -219,9 +216,13 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
     // 1. Sync Towers
     for (final tower in matchState.towers) {
       if (!_towerComponents.containsKey(tower.id)) {
-        final comp = Tower3DFakeComponent(tower: tower);
-        _towerComponents[tower.id] = comp;
-        world.add(comp);
+        try {
+          final comp = Tower3DFakeComponent(tower: tower);
+          _towerComponents[tower.id] = comp;
+          world.add(comp);
+        } catch (e) {
+          debugPrint('❌ Error creating Tower component: $e');
+        }
       }
     }
     // Cleanup Towers
@@ -240,16 +241,24 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
       if (unit.isBuilding) {
         // Sync Building
         if (!_buildingComponents.containsKey(unit.id)) {
-          final comp = Building3DFakeComponent(building: unit);
-          _buildingComponents[unit.id] = comp;
-          world.add(comp);
+          try {
+            final comp = Building3DFakeComponent(building: unit);
+            _buildingComponents[unit.id] = comp;
+            world.add(comp);
+          } catch (e) {
+            debugPrint('❌ Error creating Building component for ${unit.cardId}: $e');
+          }
         }
       } else {
         // Sync Unit
         if (!_unitComponents.containsKey(unit.id)) {
-          final comp = Unit3DFakeComponent(unit: unit);
-          _unitComponents[unit.id] = comp;
-          world.add(comp);
+          try {
+            final comp = Unit3DFakeComponent(unit: unit);
+            _unitComponents[unit.id] = comp;
+            world.add(comp);
+          } catch (e) {
+            debugPrint('❌ Error creating Unit component for ${unit.cardId}: $e');
+          }
         }
       }
     }
@@ -279,9 +288,13 @@ class BattleGame extends FlameGame with TapDetector, PanDetector {
     // 3. Sync Spells
     for (final spell in matchState.spells) {
       if (!_spellComponents.containsKey(spell.id)) {
-        final comp = SpellAreaComponent(spell: spell);
-        _spellComponents[spell.id] = comp;
-        world.add(comp);
+        try {
+          final comp = SpellAreaComponent(spell: spell);
+          _spellComponents[spell.id] = comp;
+          world.add(comp);
+        } catch (e) {
+          debugPrint('❌ Error creating Spell component for ${spell.cardId}: $e');
+        }
       }
     }
     _spellComponents.removeWhere((id, comp) {
